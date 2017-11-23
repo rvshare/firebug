@@ -68,13 +68,22 @@ jobs:
           name: Set bundler path
           command: bundle --path vendor/bundle
       - run:
+          name: Setup Code Climate test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
           name: Run tests
           command: |
+            ./cc-test-reporter format-coverage -t simplecov $CIRCLE_ARTIFACTS/coverage/.resultset.json
+            ./cc-test-reporter before-build
             bin/bundle exec rspec --profile 10 \
                                   --format RspecJunitFormatter \
                                   --out test_results/rspec.xml \
                                   --format progress \
                                   $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
+            ./cc-test-reporter after-build --exit-code $?
+            ./cc-test-reporter upload-coverage
       - store_test_results:
           path: test_results
       - store_artifacts:
