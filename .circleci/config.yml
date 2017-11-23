@@ -6,7 +6,7 @@ workspace_root: &workspace_root
 defaults: &defaults
   working_directory: *workspace_root
   docker:
-    - image: circleci/ruby:2.4
+    - image: afrase/firebug-ruby:2.4
 
 attach_workspace: &attach_workspace
   attach_workspace:
@@ -42,10 +42,6 @@ jobs:
     steps:
       - *restore_repo
       - *restore_gems
-      - run:
-          name: Install libmcrypt
-          command: |
-            sudo apt-get install mcrypt libmcrypt-dev
       - run:
           name: Install Bundler dependencies
           command: |
