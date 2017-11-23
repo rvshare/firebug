@@ -81,7 +81,6 @@ jobs:
                                   --out test_results/rspec.xml \
                                   --format progress \
                                   $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
-            ./cc-test-reporter after-build --exit-code $?
       - store_test_results:
           path: test_results
       - store_artifacts:
@@ -101,6 +100,7 @@ jobs:
       - run:
           name: Upload test coverage
           command: |
+            ./cc-test-reporter after-build
             ./cc-test-reporter format-coverage -t simplecov $CIRCLE_ARTIFACTS/coverage/.resultset.json
             ./cc-test-reporter upload-coverage
 
