@@ -86,6 +86,9 @@ jobs:
       - store_artifacts:
           path: test_results
           destination: test-results
+      - store_artifacts:
+          path: coverage
+          destination: test-coverage
       - persist_to_workspace:
           root: *workspace_root
           paths:
@@ -104,7 +107,7 @@ jobs:
       - run:
           name: Upload test coverage
           command: |
-            ./cc-test-reporter format-coverage -t simplecov $CIRCLE_ARTIFACTS/coverage/.resultset.json
+            ./cc-test-reporter format-coverage -t simplecov coverage/.resultset.json
             ./cc-test-reporter upload-coverage
 
 workflows:
