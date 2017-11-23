@@ -84,12 +84,12 @@ jobs:
       - store_test_results:
           path: test_results
       - store_artifacts:
-          path: test-results
+          path: test_results
           destination: test-results
       - persist_to_workspace:
           root: *workspace_root
           paths:
-            - $CIRCLE_ARTIFACTS/coverage
+            - coverage
 
   upload-coverage:
     <<: *defaults
