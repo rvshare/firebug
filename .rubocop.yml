@@ -1,0 +1,34 @@
+require: rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 2.4
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Metrics/LineLength:
+  # Commonly used screens these days easily fit more than 80 characters.
+  Max: 120
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/MethodLength:
+  # Too short methods lead to extraction of single-use methods, which can make
+  # the code easier to read (by naming things), but can also clutter the class
+  Max: 20
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+
+Layout/SpaceAroundEqualsInParameterDefault:
+  # No space makes the method definition shorter and differentiates
+  # from a regular assignment.
+  EnforcedStyle: no_space
+
+Style/SymbolArray:
+  # We do not need to support Ruby 1.9, so this is good to use.
+  Enabled: true
