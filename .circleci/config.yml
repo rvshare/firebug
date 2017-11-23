@@ -86,6 +86,10 @@ jobs:
       - store_artifacts:
           path: test-results
           destination: test-results
+      - persist_to_workspace:
+          root: *workspace_root
+          paths:
+            - $CIRCLE_ARTIFACTS/coverage
 
   upload-coverage:
     <<: *defaults
