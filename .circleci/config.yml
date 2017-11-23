@@ -105,7 +105,6 @@ jobs:
           name: Upload test coverage
           command: |
             ./cc-test-reporter format-coverage -t simplecov $CIRCLE_ARTIFACTS/coverage/.resultset.json
-            ./cc-test-reporter after-build -t simplecov
             ./cc-test-reporter upload-coverage
 
 workflows:
