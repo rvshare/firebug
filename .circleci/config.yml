@@ -1,0 +1,94 @@
+version: 2
+
+workspace_root: &workspace_root
+  ~/firebug
+
+defaults: &defaults
+  working_directory: *workspace_root
+  docker:
+    - image: circleci/ruby:2.4
+
+attach_workspace: &attach_workspace
+  attach_workspace:
+    at: *workspace_root
+
+restore_repo: &restore_repo
+  restore_cache:
+    name: Restore repository
+    keys:
+      - repo-{{ .Branch }}-{{ .Revision }}
+
+restore_gems: &restore_gems
+  restore_cache:
+    name: Restore gems
+    keys:
+      - firebug-{{ checksum "Gemfile.lock" }}
+
+jobs:
+  # Since a workspace can't persist the root of the working directory we are using the caching mechanism to save
+  # the repository.
+  checkout-code:
+    <<: *defaults
+    steps:
+      - *restore_repo
+      - checkout
+      - save_cache:
+          key: repo-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - *workspace_root
+
+  bundle-dependencies:
+    <<: *defaults
+    steps:
+      - *restore_repo
+      - *restore_gems
+      - run:
+          name: Install Bundler dependencies
+          command: |
+            bin/bundle install --deployment \
+                                --path=vendor/bundle \
+                                --jobs=4 \
+                                --retry=3
+      - save_cache:
+          key: firebug-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+      - persist_to_workspace:
+          root: *workspace_root
+          paths:
+            - vendor/bundle
+
+  run-specs:
+    <<: *defaults
+    parallelism: 2
+    steps:
+      - *restore_repo
+      - *attach_workspace
+      - run:
+          name: Set bundler path
+          command: bundle --path vendor/bundle
+      - run:
+          name: Run tests
+          command: |
+            bin/bundle exec rspec --profile 10 \
+                                  --format RspecJunitFormatter \
+                                  --out test_results/rspec.xml \
+                                  --format progress \
+                                  $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
+      - store_test_results:
+          path: test_results
+      - store_artifacts:
+          path: test-results
+          destination: test-results
+
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - checkout-code
+      - bundle-dependencies:
+          requires:
+            - checkout-code
+      - run-specs:
+          requires:
+            - bundle-dependencies
