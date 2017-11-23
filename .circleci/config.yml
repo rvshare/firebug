@@ -43,6 +43,10 @@ jobs:
       - *restore_repo
       - *restore_gems
       - run:
+          name: Install libmcrypt
+          command: |
+            sudo apt-get install mcrypt libmcrypt-dev
+      - run:
           name: Install Bundler dependencies
           command: |
             bin/bundle install --deployment \
