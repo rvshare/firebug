@@ -75,7 +75,6 @@ jobs:
       - run:
           name: Run tests
           command: |
-            ./cc-test-reporter format-coverage -t simplecov $CIRCLE_ARTIFACTS/coverage/.resultset.json
             ./cc-test-reporter before-build
             bin/bundle exec rspec --profile 10 \
                                   --format RspecJunitFormatter \
@@ -83,6 +82,7 @@ jobs:
                                   --format progress \
                                   $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
             ./cc-test-reporter after-build --exit-code $?
+            ./cc-test-reporter format-coverage -t simplecov $CIRCLE_ARTIFACTS/coverage/.resultset.json
             ./cc-test-reporter upload-coverage
       - store_test_results:
           path: test_results
