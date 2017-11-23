@@ -75,13 +75,13 @@ jobs:
       - run:
           name: Run tests
           command: |
-            ./bin/cc-test-reporter before-build
+            ./cc-test-reporter before-build
             bin/bundle exec rspec --profile 10 \
                                   --format RspecJunitFormatter \
                                   --out test_results/rspec.xml \
                                   --format progress \
                                   $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
-            ./bin/cc-test-reporter after-build --exit-code $?
+            ./cc-test-reporter after-build --exit-code $?
       - store_test_results:
           path: test_results
       - store_artifacts:
