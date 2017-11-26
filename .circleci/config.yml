@@ -60,7 +60,7 @@ jobs:
 
   run-specs:
     <<: *defaults
-    parallelism: 2
+    parallelism: 1
     steps:
       - *restore_repo
       - *attach_workspace
@@ -81,6 +81,7 @@ jobs:
                                   --out test_results/rspec.xml \
                                   --format progress \
                                   $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
+            ./cc-test-reporter after-build -t simplecov coverage/.resultset.json
       - store_test_results:
           path: test_results
       - store_artifacts:
@@ -89,26 +90,6 @@ jobs:
       - store_artifacts:
           path: coverage
           destination: test-coverage
-      - persist_to_workspace:
-          root: *workspace_root
-          paths:
-            - coverage
-
-  upload-coverage:
-    <<: *defaults
-    steps:
-      - *restore_repo
-      - *attach_workspace
-      - run:
-          name: Setup Code Climate test-reporter
-          command: |
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-            chmod +x ./cc-test-reporter
-      - run:
-          name: Upload test coverage
-          command: |
-            ./cc-test-reporter format-coverage -t simplecov coverage/.resultset.json
-            ./cc-test-reporter upload-coverage
 
 workflows:
   version: 2
@@ -121,6 +102,3 @@ workflows:
       - run-specs:
           requires:
             - bundle-dependencies
-      - upload-coverage:
-          requires:
-            - run-specs
