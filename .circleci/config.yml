@@ -60,7 +60,7 @@ jobs:
 
   run-specs:
     <<: *defaults
-    parallelism: 2
+    parallelism: 1
     steps:
       - *restore_repo
       - *attach_workspace
@@ -68,18 +68,28 @@ jobs:
           name: Set bundler path
           command: bundle --path vendor/bundle
       - run:
+          name: Setup Code Climate test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
           name: Run tests
           command: |
+            ./cc-test-reporter before-build
             bin/bundle exec rspec --profile 10 \
                                   --format RspecJunitFormatter \
                                   --out test_results/rspec.xml \
                                   --format progress \
                                   $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
+            ./cc-test-reporter after-build -t simplecov coverage/.resultset.json
       - store_test_results:
           path: test_results
       - store_artifacts:
-          path: test-results
+          path: test_results
           destination: test-results
+      - store_artifacts:
+          path: coverage
+          destination: test-coverage
 
 workflows:
   version: 2
