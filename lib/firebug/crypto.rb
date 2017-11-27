@@ -14,7 +14,7 @@ module Firebug
     # @param [String] data
     # @return [String]
     def encrypt(data)
-      # create a random 32 byte string
+      # Create a random 32 byte string to act as the initialization vector.
       iv = SecureRandom.random_bytes(32)
       # CodeIgniter pads the data with zeros
       cipher = Mcrypt.new(:rijndael_256, :cbc, @key, iv, :zeros)
@@ -36,8 +36,7 @@ module Firebug
     #
     # @param [String] data
     def add_noise(data)
-      key = Digest::SHA1.hexdigest(@key)
-      Array.new(data.size) { |i| ((data[i].ord + key[i % key.size].ord) % 256).chr }.join
+      noise(data, :+)
     end
 
     # The "noise" is removed by subtracting the ordinals.
@@ -45,8 +44,17 @@ module Firebug
     # @param [String] data
     # @return [String]
     def remove_noise(data)
+      noise(data, :-)
+    end
+
+    private
+
+    # @param [String] data
+    # @param [Symbol] operator
+    # @return [String]
+    def noise(data, operator)
       key = Digest::SHA1.hexdigest(@key)
-      Array.new(data.size) { |i| ((data[i].ord - key[i % key.size].ord) % 256).chr }.join
+      Array.new(data.size) { |i| (data[i].ord.send(operator, key[i % key.size].ord) % 256).chr }.join
     end
   end
 end
