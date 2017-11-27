@@ -8,6 +8,20 @@ RSpec.describe Firebug do
     expect(Firebug::VERSION).not_to be_nil
   end
 
+  describe '.configure' do
+    let(:key) { 'password' }
+
+    before do
+      described_class.configure do |config|
+        config.key = key
+      end
+    end
+
+    it 'sets the key in configure block' do
+      expect(described_class.configuration.key).to eq(key)
+    end
+  end
+
   describe '.serialize' do
     let(:test_case) { { a: 'foo', b: 4, c: 1.5, d: true, e: nil, f: [1], g: { x: 'bar' } } }
 
@@ -59,7 +73,19 @@ RSpec.describe Firebug do
     let(:test_case) { 'Super secret data' }
 
     it 'encrypts data' do
-      expect(described_class.encrypt(key, test_case)).not_to eq(test_case)
+      expect(described_class.encrypt(test_case, key)).not_to eq(test_case)
+    end
+
+    context 'when setting key using configuration' do
+      before do
+        described_class.configure do |config|
+          config.key = key
+        end
+      end
+
+      it 'decrypts data' do
+        expect(described_class.encrypt(test_case)).not_to eq(test_case)
+      end
     end
   end
 
@@ -68,7 +94,19 @@ RSpec.describe Firebug do
     let(:test_case) { Base64.strict_decode64('MhJ5SVXPve1H4Ej6iXdqFd12efNk8fpB4JttHzMNnIeLKhqjHvH6P2iYmyWgBealwo5sNweMUa+mPyYagULY5g==') }
 
     it 'decrypts data' do
-      expect(described_class.decrypt(key, test_case)).to eq('Super secret data')
+      expect(described_class.decrypt(test_case, key)).to eq('Super secret data')
+    end
+
+    context 'when setting key using configuration' do
+      before do
+        described_class.configure do |config|
+          config.key = key
+        end
+      end
+
+      it 'decrypts data' do
+        expect(described_class.decrypt(test_case)).to eq('Super secret data')
+      end
     end
   end
 end
