@@ -11,6 +11,7 @@ gem 'firebug'
 ```
 
 And then execute:
+
 ```bash
 bundle
 ```
