@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'spec_helper'
+require 'securerandom'
 
 RSpec.describe Firebug do
   it 'has a version number' do
@@ -50,6 +51,24 @@ RSpec.describe Firebug do
         str_result = described_class.serialize(described_class.unserialize(str_result))
         expect(described_class.unserialize(str_result)).to eq(described_class.unserialize(test_case))
       end
+    end
+  end
+
+  describe '.encrypt' do
+    let(:key) { 'password' }
+    let(:test_case) { 'Super secret data' }
+
+    it 'encrypts data' do
+      expect(described_class.encrypt(key, test_case)).not_to eq(test_case)
+    end
+  end
+
+  describe '.decrypt' do
+    let(:key) { 'password' }
+    let(:test_case) { Base64.strict_decode64('MhJ5SVXPve1H4Ej6iXdqFd12efNk8fpB4JttHzMNnIeLKhqjHvH6P2iYmyWgBealwo5sNweMUa+mPyYagULY5g==') }
+
+    it 'decrypts data' do
+      expect(described_class.decrypt(key, test_case)).to eq('Super secret data')
     end
   end
 end

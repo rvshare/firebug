@@ -2,6 +2,10 @@
 
 module Firebug
   class Serializer
+    # Convert a ruby object into a PHP serialized string.
+    #
+    # @param [Object] obj
+    # @return [String]
     def self.parse(obj) # rubocop:disable AbcSize,CyclomaticComplexity
       case obj
       when NilClass

@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require_relative '../spec_helper'
-require 'securerandom'
-require 'base64'
 
 RSpec.describe Firebug::Crypto do
   describe '.new' do

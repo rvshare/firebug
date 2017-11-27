@@ -93,5 +93,12 @@ RSpec.describe Firebug::Serializer do
         expect(described_class.parse(foo: { bar: 'foo' })).to eq('a:1:{s:3:"foo";a:1:{s:3:"bar";s:3:"foo";}}')
       end
     end
+
+    context 'when serializing unsupported types' do
+      it 'raises an ArgumentError' do
+        klass = Class.new
+        expect { described_class.parse(foo: klass.new) }.to raise_error(ArgumentError)
+      end
+    end
   end
 end
