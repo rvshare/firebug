@@ -12,19 +12,20 @@ gem 'firebug'
 
 And then execute:
 ```bash
-$ bundle
+bundle
 ```
 
 Or install it yourself as:
 
 ```bash
-$ gem install firebug
+gem install firebug
 ```
 
 ## Usage
 
 Serialize a ruby object to PHP's serialized format and unserialize a
 PHP serialized string into a ruby object.
+
 ```ruby
 ruby_obj = { foo: 'bar' }
 serialized_obj = Firebug.serialize(ruby_obj) # => a:1:{s:3:"foo";s:3:"bar";}
@@ -34,6 +35,7 @@ ruby_obj == result # => true
 ```
 
 Encrypt and decrypt data.
+
 ```ruby
 key = 'password'
 data = 'super secret data'
@@ -68,7 +70,7 @@ version, push git commits and tags, and push the `.gem`file to
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at 
+Bug reports and pull requests are welcome on GitHub at
 [https://github.com/afrase/firebug](https://github.com/afrase/firebug.)
 
 ## License
