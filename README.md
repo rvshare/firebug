@@ -61,7 +61,6 @@ version, push git commits and tags, and push the `.gem`file to
 
 ## Todo
 
-- [ ] Create a configuration object to set things like encryption key globally.
 - [ ] Add Rails session store support.
 - [ ] Support for serializing and unserializing classes.
 - [ ] Add validation to unserializer. e.g. make sure length of string or
