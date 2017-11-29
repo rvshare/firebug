@@ -8,6 +8,7 @@ require_relative 'firebug/serializer'
 require_relative 'firebug/parser'
 require_relative 'firebug/transformer'
 require_relative 'firebug/configuration'
+require_relative 'action_dispatch/session/code_igniter_store'
 
 module Firebug
   class << self
@@ -50,5 +51,17 @@ module Firebug
   def self.decrypt(data, key=nil)
     key = configuration.key if key.nil?
     Firebug::Crypto.new(key).decrypt(data)
+  end
+
+  # @param [Object] data
+  # @return [String]
+  def self.encrypt_cookie(data)
+    Base64.strict_encode64(Firebug.encrypt(Firebug.serialize(data)))
+  end
+
+  # @param [String] data
+  # @return [Object]
+  def self.decrypt_cookie(data)
+    Firebug.unserialize(Firebug.decrypt(Base64.strict_decode64(data)))
   end
 end
