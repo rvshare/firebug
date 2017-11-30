@@ -20,6 +20,10 @@ RSpec.describe Firebug::Parser do
     it 'can parse a string' do
       expect(string_parser).to parse('s:3:"foo";')
     end
+
+    it 'can parse a string of strings' do
+      expect(string_parser).to parse('s:13:"{"foo":"bar"}";')
+    end
   end
 
   context 'when parsing integers' do

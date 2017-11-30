@@ -17,6 +17,13 @@ RSpec.describe Firebug::Transformer do
       expect(transformer.apply(result)).to eq('bar')
     end
 
+    context 'when string of strings' do
+      it 'returns the correct value' do
+        result = parser.parse('s:13:"{"foo":"bar"}";')
+        expect(transformer.apply(result)).to eq('{"foo":"bar"}')
+      end
+    end
+
     context 'when empty string' do
       it 'returns nil' do
         result = parser.parse('')

@@ -7,7 +7,7 @@ module ActionDispatch
   module Session
     class CodeIgniterStore < AbstractStore
       def initialize(app, options={})
-        super(app, options.merge!(key: 'default_pyrocms'))
+        super(app, { key: 'default_pyrocms' }.merge(options))
       end
 
       # @param [ActionDispatch::Request] req
@@ -15,7 +15,7 @@ module ActionDispatch
       def find_session(req, session)
         session = Firebug.decrypt_cookie(session)
         model = find_session_model(req, session[:session_id])
-        # Rack::Session::Abstract::Persisted#load_session expects this to return an Array with the first value being
+        # +Rack::Session::Abstract::Persisted#load_session+ expects this to return an Array with the first value being
         # the session ID and the second the actual session data.
         [model.session_id, model.user_data]
       end

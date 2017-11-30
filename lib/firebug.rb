@@ -12,12 +12,17 @@ require_relative 'action_dispatch/session/code_igniter_store'
 
 module Firebug
   class << self
-    attr_accessor :configuration
+    attr_writer :configuration
+  end
+
+  # @return [Firebug::Configuration]
+  def self.configuration
+    @configuration ||= Configuration.new
   end
 
   # @yieldparam [Firebug::Configuration] config
   def self.configure
-    yield self.configuration ||= Configuration.new
+    yield configuration
   end
 
   # Serialize a ruby object into a PHP serialized string.

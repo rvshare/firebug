@@ -2,44 +2,55 @@
 
 module Firebug
   class Parser < Parslet::Parser
-    rule(:digit)          { match('[0-9]') }
-    rule(:digits)         { digit.repeat(1) }
-    rule(:digits?)        { digit.repeat }
-    rule(:quote)          { str('"') }
-    rule(:nonquote)       { str('"').absnt? >> any }
-    rule(:escape)         { str('\\') >> any }
-    rule(:sep)            { str(':') }
-    rule(:term)           { str(';') }
-    # matches 's:3:"foo";'
-    rule(:string_header)  { str('s').repeat(1) >> sep >> digits >> sep }
-    rule(:string)         { string_header >> quote >> (escape | nonquote).repeat(1).as(:string) >> quote >> term }
-    # matches 'd:1.5;'
-    rule(:float_header)   { str('d').repeat(1) >> sep }
-    rule(:float)          { float_header >> (digits >> str('.').maybe >> digits?).as(:float) >> term }
-    # matches 'i:1;'
-    rule(:integer_header) { str('i').repeat(1) >> sep }
-    rule(:integer)        { integer_header >> digits.as(:integer) >> term }
-    # matches 'b:1;'
-    rule(:bool_header)    { str('b').repeat(1) >> sep }
-    rule(:bool)           { bool_header >> (str('0') | str('1')).as(:bool) >> term }
-    # matches 'N;'
-    rule(:null)           { str('N').repeat(1) >> term }
-    # matches ''
-    rule(:blank)          { match('^$') }
+    rule(:digit)    { match('[0-9]') }
+    rule(:digits)   { digit.repeat(1) }
+    rule(:digits?)  { digit.repeat }
+    rule(:quote)    { str('"') }
+    rule(:nonquote) { str('"').absnt? >> any }
+    rule(:escape)   { str('\\') >> any }
+    rule(:sep)      { str(':') }
+    rule(:term)     { str(';') }
 
-    rule(:value)          { string | integer | float | bool | null.as(:null) | blank.as(:blank) }
-    # matches 'i:0;s:3:"foo";'
-    rule(:array_list)     { integer >> object.as(:value) }
-    # matches 's:3:"foo";i:1;'
-    rule(:hash_pair)      { string.as(:key) >> object.as(:value) }
+    rule(:str_start) { str('s') >> sep >> digits.capture(:size) >> sep >> str('"') }
+    rule(:str_end)   { str('"') >> term }
+    rule(:string)    { str_start >> str_dynamic >> str_end }
+    rule(:str_dynamic) do
+      dynamic do |s, c|
+        # Need to use the previous captured size to get a string of that length.
+        str_size = c.captures[:size].to_i
+        # Since we are dynamically creating a matcher, we don't want to advance the pointer of the string because we
+        # need Parslet to match against it.
+        # So we consume the size of the string then reset the internal +StringScanner+ of +Parslet::Source+ to it's
+        # pre-consume position. Resetting the position inside #tap to avoid a temp variable.
+        str(s.consume(str_size).tap { s.instance_variable_get(:@str).unscan }).as(:string)
+      end
+    end
 
-    rule(:enum_header)    { str('a').repeat(1) >> sep >> digits >> sep }
-    # matches 'a:2:{i:0;s:3:"foo";}'
-    rule(:array)          { enum_header >> str('{') >> array_list.repeat >> str('}') }
-    # matches 'a:2:{s:3:"foo";i:1;}'
-    rule(:hash)           { enum_header >> str('{') >> hash_pair.repeat >> str('}') }
+    rule(:float_start) { str('d') >> sep }
+    rule(:float_end)   { term }
+    rule(:float)       { float_start >> (digits >> str('.').maybe >> digits?).as(:float) >> float_end }
 
-    rule(:object)         { value | array.as(:array) | hash.as(:hash) }
+    rule(:int_start) { str('i') >> sep }
+    rule(:int_end)   { term }
+    rule(:integer)   { int_start >> digits.as(:integer) >> int_end }
+
+    rule(:bool_start) { str('b') >> sep }
+    rule(:bool_end)   { term }
+    rule(:bool)       { bool_start >> (str('0') | str('1')).as(:bool) >> bool_end }
+
+    rule(:null)  { str('N') >> term }
+    rule(:blank) { match('^$') }
+
+    rule(:value) { string | integer | float | bool | null.as(:null) | blank.as(:blank) }
+
+    rule(:enum_start) { str('a').repeat(1) >> sep >> digits >> sep >> str('{') }
+    rule(:enum_end)   { str('}') }
+    rule(:array_list) { integer >> object.as(:value) }
+    rule(:hash_pair)  { string.as(:key) >> object.as(:value) }
+    rule(:array)      { enum_start >> array_list.repeat >> enum_end }
+    rule(:hash)       { enum_start >> hash_pair.repeat >> enum_end }
+
+    rule(:object) { value | array.as(:array) | hash.as(:hash) }
     root(:object)
   end
 end
