@@ -17,21 +17,19 @@ module ActionDispatch
         model = find_session_model(req, session[:session_id])
         # Rack::Session::Abstract::Persisted#load_session expects this to return an Array with the first value being
         # the session ID and the second the actual session data.
-        [model.session_id, model.data]
+        [model.session_id, model.user_data]
       end
 
-      # @param [ActionDispatch::Request] env
+      # @param [ActionDispatch::Request] req
       # @param [String] sid
       # @param [Hash] session
       # @param [Hash] _options
       # @return [String]
-      def write_session(env, sid, session, _options)
-        # I believe it's possible for Rack to generate a new sid so update session_id with the one used to call us.
-        # session keys get stringified by Rack::Session::Abstract::SessionHash#load!
-        session['session_id'] = sid
-        model = find_session_model(env, sid)
+      def write_session(req, sid, session, _options)
+        model = find_session_model(req, sid)
+        model_params = { session_id: sid, user_data: session, last_activity: Time.current.to_i }
         # Returning false will cause Rack to output a warning.
-        return false unless model.update(session)
+        return false unless model.update(model_params)
         # Return the encrypted cookie format of the data. Rack sets this value as the cookie in the response
         model.cookie_data
       end
@@ -50,13 +48,13 @@ module ActionDispatch
       private
 
       # @param [ActionDispatch::Request] req
-      # @param [String] session_id
+      # @param [String] sid
       # @return [Firebug::Session]
-      def find_session_model(req, session_id=nil)
-        model = Firebug::Session.find_by(session_id: session_id)
+      def find_session_model(req, sid=nil)
+        model = Firebug::Session.find_by(session_id: sid)
         return model if model
         Firebug::Session.create(
-          session_id: session_id || generate_sid,
+          session_id: sid || generate_sid,
           last_activity: Time.current.to_i,
           user_agent: req.user_agent,
           ip_address: req.remote_ip
