@@ -11,7 +11,7 @@ module Firebug
     end
 
     def user_data=(value)
-      super(Firebug.serialize(value || ''))
+      super(Firebug.serialize(value))
     end
 
     def cookie_data
