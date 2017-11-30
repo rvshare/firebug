@@ -16,6 +16,13 @@ RSpec.describe Firebug::Transformer do
       result = parser.parse('s:3:"bar";')
       expect(transformer.apply(result)).to eq('bar')
     end
+
+    context 'when empty string' do
+      it 'returns nil' do
+        result = parser.parse('')
+        expect(transformer.apply(result)).to be_nil
+      end
+    end
   end
 
   context 'when transforming integers' do

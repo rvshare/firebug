@@ -24,8 +24,10 @@ module Firebug
     rule(:bool)           { bool_header >> (str('0') | str('1')).as(:bool) >> term }
     # matches 'N;'
     rule(:null)           { str('N').repeat(1) >> term }
+    # matches ''
+    rule(:blank)          { match('^$') }
 
-    rule(:value)          { string | integer | float | bool | null.as(:null) }
+    rule(:value)          { string | integer | float | bool | null.as(:null) | blank.as(:blank) }
     # matches 'i:0;s:3:"foo";'
     rule(:array_list)     { integer >> object.as(:value) }
     # matches 's:3:"foo";i:1;'

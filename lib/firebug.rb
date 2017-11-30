@@ -15,6 +15,7 @@ module Firebug
     attr_accessor :configuration
   end
 
+  # @yieldparam [Firebug::Configuration] config
   def self.configure
     yield self.configuration ||= Configuration.new
   end

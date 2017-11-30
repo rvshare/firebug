@@ -6,6 +6,14 @@ require 'parslet/rig/rspec'
 RSpec.describe Firebug::Parser do
   let(:parser) { described_class.new }
 
+  context 'when parsing empty values' do
+    let(:blank_parser) { parser.blank }
+
+    it 'can parse an empty string' do
+      expect(blank_parser).to parse('')
+    end
+  end
+
   context 'when parsing strings' do
     let(:string_parser) { parser.string }
 
