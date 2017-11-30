@@ -20,7 +20,7 @@ RSpec.describe Firebug::Transformer do
     context 'when empty string' do
       it 'returns nil' do
         result = parser.parse('')
-        expect(transformer.apply(result)).to be_nil
+        expect(transformer.apply(result)).to eq('')
       end
     end
   end

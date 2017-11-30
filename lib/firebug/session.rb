@@ -7,11 +7,11 @@ module Firebug
     self.table_name = 'default_ci_sessions'
 
     def user_data
-      Firebug.unserialize(super)
+      Firebug.unserialize(super || '')
     end
 
     def user_data=(value)
-      super(Firebug.serialize(value))
+      super(Firebug.serialize(value || ''))
     end
 
     def cookie_data
