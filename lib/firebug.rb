@@ -5,9 +5,10 @@ require 'parslet'
 require_relative 'firebug/version'
 require_relative 'firebug/crypto'
 require_relative 'firebug/serializer'
+require_relative 'firebug/unserializer'
+require_relative 'firebug/configuration'
 require_relative 'firebug/parser'
 require_relative 'firebug/transformer'
-require_relative 'firebug/configuration'
 require_relative 'action_dispatch/session/code_igniter_store'
 
 module Firebug
@@ -38,7 +39,7 @@ module Firebug
   # @param [String] value
   # @return [Object]
   def self.unserialize(value)
-    Transformer.new.apply(Parser.new.parse(value))
+    Unserializer.parse(value)
   end
 
   # Encrypt data the way CodeIgniter does.
@@ -47,7 +48,7 @@ module Firebug
   # @param [String] key
   def self.encrypt(data, key=nil)
     key = configuration.key if key.nil?
-    Firebug::Crypto.new(key).encrypt(data)
+    Crypto.new(key).encrypt(data)
   end
 
   # Decrypt data encrypted using CodeIgniters encryption.
@@ -56,17 +57,21 @@ module Firebug
   # @param [String] key
   def self.decrypt(data, key=nil)
     key = configuration.key if key.nil?
-    Firebug::Crypto.new(key).decrypt(data)
+    Crypto.new(key).decrypt(data)
   end
 
+  # Serializes, encrypts, and base64 encodes the data.
+  #
   # @param [Object] data
-  # @return [String]
+  # @return [String] a base64 encoded string
   def self.encrypt_cookie(data)
     Base64.strict_encode64(Firebug.encrypt(Firebug.serialize(data)))
   end
 
-  # @param [String] data
-  # @return [Object]
+  # Decodes the base64 encoded string, decrypts, and unserializes.
+  #
+  # @param [String] data a base64 encoded encrypted string
+  # @return [Object] the unserialized data
   def self.decrypt_cookie(data)
     Firebug.unserialize(Firebug.decrypt(Base64.strict_decode64(data)))
   end
