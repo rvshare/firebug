@@ -20,6 +20,12 @@ RSpec.describe Firebug::Unserializer do
     end
   end
 
+  context 'when parsing unicode strings' do
+    it 'can parse them correctly' do
+      expect(described_class).to parse('s:3:"√";')
+    end
+  end
+
   context 'when parsing integers' do
     it 'can parse an integer value' do
       expect(described_class).to parse('i:42;')

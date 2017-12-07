@@ -73,7 +73,7 @@ module Firebug
     end
 
     def read(size)
-      Array.new(size) { str.getch }.join
+      Array.new(size) { str.get_byte }.join
     end
 
     def expect(s)
