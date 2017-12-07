@@ -22,6 +22,26 @@ Or install it yourself as:
 gem install firebug
 ```
 
+To use the Rails session store, create an initializer file with:
+
+```ruby
+Firebug.configure do |config|
+  config.key = 'encryption key'
+end
+```
+
+And then set:
+
+```ruby
+Rails.application.config.session_store :code_igniter_store
+```
+
+If you are using Rails in API mode then you will need to set the middleware:
+
+```ruby
+Rails.application.config.middleware.use ActionDispatch::Session::CodeIgniterStore
+```
+
 ## Usage
 
 Serialize a ruby object to PHP's serialized format and unserialize a
