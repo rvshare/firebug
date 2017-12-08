@@ -73,6 +73,7 @@ module Firebug
   # @param [String] data a base64 encoded encrypted string
   # @return [Object] the unserialized data
   def self.decrypt_cookie(data)
+    return {} if data.nil?
     Firebug.unserialize(Firebug.decrypt(Base64.strict_decode64(data)))
   end
 end
