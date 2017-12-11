@@ -11,10 +11,9 @@ module ActionDispatch
       end
 
       # @param [ActionDispatch::Request] req
-      # @param [Hash] session
-      def find_session(req, session)
-        session = Firebug.decrypt_cookie(session)
-        model = find_session_model(req, session[:session_id])
+      # @param [Hash] sid
+      def find_session(req, sid)
+        model = find_session_model(req, sid)
         # +Rack::Session::Abstract::Persisted#load_session+ expects this to return an Array with the first value being
         # the session ID and the second the actual session data.
         [model.session_id, model.user_data]
@@ -27,7 +26,7 @@ module ActionDispatch
       # @return [String]
       def write_session(req, sid, session, _options)
         model = find_session_model(req, sid)
-        model_params = { session_id: sid, user_data: session, last_activity: Time.current.to_i }
+        model_params = { session_id: model.session_id, user_data: session, last_activity: Time.current.to_i }
         # Returning false will cause Rack to output a warning.
         return false unless model.update(model_params)
         # Return the encrypted cookie format of the data. Rack sets this value as the cookie in the response
@@ -43,6 +42,15 @@ module ActionDispatch
         find_session_model(req, sid).delete
         # Generate a new one and return it's ID
         find_session_model(req).session_id
+      end
+
+      # @param [ActionDispatch::Request] req
+      # @return [String, nil]
+      def extract_session_id(req)
+        sid = req.cookies[@key]
+        return if sid.nil?
+        return sid if sid.size <= 32
+        Firebug.decrypt_cookie(sid)[:session_id]
       end
 
       private
