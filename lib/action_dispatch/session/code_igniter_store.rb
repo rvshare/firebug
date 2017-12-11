@@ -59,9 +59,12 @@ module ActionDispatch
       # @param [String] sid
       # @return [Firebug::Session]
       def find_session_model(req, sid=nil)
-        model = Firebug::Session.find_by(session_id: sid)
-        return model if model
-        Firebug::Session.create(
+        if sid
+          model = Firebug::Session.find_by(session_id: sid)
+          return model if model
+        end
+
+        Firebug::Session.new(
           session_id: sid || generate_sid,
           last_activity: Time.current.to_i,
           user_agent: req.user_agent,
