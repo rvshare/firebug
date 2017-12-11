@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module Firebug
+  require 'strscan'
+
   # This class will unserialize a PHP serialized string into a ruby object.
   #
   # @note Hashes will be returned with symbolized keys.

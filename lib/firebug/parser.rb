@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module Firebug
+  require 'parslet'
+
   class Parser < Parslet::Parser
     rule(:digit)    { match('[0-9]') }
     rule(:digits)   { digit.repeat(1) }

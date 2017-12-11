@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module Firebug
+  require 'parslet'
+
   class Transformer < Parslet::Transform
     rule(string: simple(:string))   { string.to_s }
     rule(integer: simple(:integer)) { integer.to_i }

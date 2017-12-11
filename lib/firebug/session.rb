@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'active_record'
-
-# An ActiveRecord model of the CodeIgniter sessions table.
 module Firebug
+  require 'active_record'
+
+  # An ActiveRecord model of the CodeIgniter sessions table.
   class Session < ActiveRecord::Base
     self.table_name = 'default_ci_sessions'
 
