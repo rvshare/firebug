@@ -14,7 +14,7 @@ module ActionDispatch
       # @param [String] session
       def find_session(req, session)
         # If `session` is less than the IV size of rijndael 256 then it's probably a session ID created by Rails.
-        session = !session.nil? && session.size > 32 ? Firebug.decrypt_cookie(session) : { session_id: session }
+        session = session.size > 32 ? Firebug.decrypt_cookie(session) : { session_id: session }
         model = find_session_model(req, session[:session_id])
         # +Rack::Session::Abstract::Persisted#load_session+ expects this to return an Array with the first value being
         # the session ID and the second the actual session data.
@@ -28,7 +28,7 @@ module ActionDispatch
       # @return [String]
       def write_session(req, sid, session, _options)
         model = find_session_model(req, sid)
-        model_params = { session_id: model.session_id, user_data: session, last_activity: Time.current.to_i }
+        model_params = { session_id: sid, user_data: session, last_activity: Time.current.to_i }
         # Returning false will cause Rack to output a warning.
         return false unless model.update(model_params)
         # Return the encrypted cookie format of the data. Rack sets this value as the cookie in the response
