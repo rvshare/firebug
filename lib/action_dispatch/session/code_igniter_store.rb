@@ -28,7 +28,7 @@ module ActionDispatch
       # @return [String]
       def write_session(req, sid, session, _options)
         model = find_session_model(req, sid)
-        model_params = { session_id: sid, user_data: session, last_activity: Time.current.to_i }
+        model_params = { session_id: model.session_id, user_data: session, last_activity: Time.current.to_i }
         # Returning false will cause Rack to output a warning.
         return false unless model.update(model_params)
         # Return the encrypted cookie format of the data. Rack sets this value as the cookie in the response
