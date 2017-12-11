@@ -14,7 +14,7 @@ module ActionDispatch
       # @param [String] session
       def find_session(req, session)
         # If `session` is less than the IV size of rijndael 256 then it's probably a session ID created by Rails.
-        session = session.size > 32 ? Firebug.decrypt_cookie(session) : { session_id: session }
+        session = !session.nil? && session.size > 32 ? Firebug.decrypt_cookie(session) : { session_id: session }
         model = find_session_model(req, session[:session_id])
         # +Rack::Session::Abstract::Persisted#load_session+ expects this to return an Array with the first value being
         # the session ID and the second the actual session data.
