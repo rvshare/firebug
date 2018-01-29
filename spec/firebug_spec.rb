@@ -11,13 +11,12 @@ RSpec.describe Firebug do
   describe '.configure' do
     let(:key) { 'password' }
 
-    before do
-      described_class.configure do |config|
-        config.key = key
-      end
+    it 'yields the configuration' do
+      expect { |b| described_class.configure(&b) }.to yield_with_args(Firebug::Configuration)
     end
 
     it 'sets the key in configure block' do
+      described_class.configure { |config| config.key = key }
       expect(described_class.configuration.key).to eq(key)
     end
   end

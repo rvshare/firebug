@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require 'parslet'
-
 require_relative 'firebug/version'
 require_relative 'firebug/crypto'
 require_relative 'firebug/serializer'
 require_relative 'firebug/unserializer'
 require_relative 'firebug/configuration'
-require_relative 'firebug/parser'
-require_relative 'firebug/transformer'
 require_relative 'action_dispatch/session/code_igniter_store'
 
 module Firebug
