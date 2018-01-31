@@ -17,17 +17,29 @@ RSpec.describe Firebug::Unserializer do
     it 'can parse a string of strings' do
       expect(described_class).to parse('s:13:"{"foo":"bar"}";').as('{"foo":"bar"}')
     end
+
+    it 'fails to parse incorrect size' do
+      expect(described_class).not_to parse('s:4:"foo";')
+    end
   end
 
   context 'when parsing unicode strings' do
     it 'can parse them correctly' do
       expect(described_class).to parse('s:3:"√";').as('√')
     end
+
+    it 'fails to parse incorrect size' do
+      expect(described_class).not_to parse('s:1:"√";')
+    end
   end
 
   context 'when parsing integers' do
     it 'can parse an integer value' do
       expect(described_class).to parse('i:42;').as(42)
+    end
+
+    it 'fails to parse incorrect value' do
+      expect(described_class).not_to parse('i:foo;')
     end
   end
 

@@ -19,6 +19,12 @@ RSpec.describe Firebug do
       described_class.configure { |config| config.key = key }
       expect(described_class.configuration.key).to eq(key)
     end
+
+    it 'sets the table name for Firebug::Sessions' do
+      expect { described_class.configuration.table_name = 'foo' }.to(
+        change(Firebug::Session, :table_name).from(Firebug::Session.table_name).to('foo')
+      )
+    end
   end
 
   describe '.serialize' do
