@@ -33,8 +33,8 @@ module ActionDispatch
         model = find_session_model(req, sid)
         model_params = {
           session_id: model.session_id,
-          user_agent: req.user_agent,
-          ip_address: req.remote_ip,
+          user_agent: req.user_agent || '', # user_agent can't be null
+          ip_address: req.remote_ip || '',  # ip_address can't be null
           user_data: session,
           last_activity: Time.current.to_i
         }

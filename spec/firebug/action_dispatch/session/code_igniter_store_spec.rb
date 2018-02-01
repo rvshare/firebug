@@ -65,6 +65,20 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
       expect(store.write_session(request, session_id, session, nil)).to be_a(String)
     end
 
+    it 'does not set user_agent to null' do
+      Firebug::Session.create!(session_id: session_id, last_activity: Time.current.to_i, user_agent: 'Foobar',
+                               ip_address: request.remote_ip, user_data: session)
+      request.user_agent = nil
+      expect { store.write_session(request, session_id, session, nil) }.not_to raise_error
+    end
+
+    it 'does not set the ip_address to null' do
+      Firebug::Session.create!(session_id: session_id, last_activity: Time.current.to_i, user_agent: 'Foobar',
+                               ip_address: request.remote_ip, user_data: session)
+      request.remote_addr = nil
+      expect { store.write_session(request, session_id, session, nil) }.not_to raise_error
+    end
+
     context 'when there is an existing session' do
       before do
         Firebug::Session.create!(
