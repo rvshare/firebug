@@ -41,7 +41,7 @@ module Firebug
   # Encrypt data the way CodeIgniter does.
   #
   # @param [Object] data
-  # @param [String] key
+  # @param [String] key if `nil` use +Firebug::Configuration.key+
   def self.encrypt(data, key=nil)
     key = configuration.key if key.nil?
     Crypto.new(key).encrypt(data)
@@ -50,7 +50,7 @@ module Firebug
   # Decrypt data encrypted using CodeIgniters encryption.
   #
   # @param [Object] data
-  # @param [String] key
+  # @param [String] key if `nil` use +Firebug::Configuration.key+
   def self.decrypt(data, key=nil)
     key = configuration.key if key.nil?
     Crypto.new(key).decrypt(data)

@@ -24,7 +24,7 @@ module Firebug
       new(value).parse
     end
 
-    # @raise ParserError
+    # @raise [ParserError]
     def parse # rubocop:disable AbcSize,CyclomaticComplexity
       ch = str.getch
       return if ch.nil?
@@ -49,6 +49,8 @@ module Firebug
 
     private
 
+    # @raise [ParseError]
+    # @return [Hash, Array]
     def parse_enumerable # rubocop:disable AbcSize
       size = parse_int
       expect('{')
@@ -65,28 +67,28 @@ module Firebug
     # @return [String]
     def parse_string
       size = parse_int
-      str.getch # quote
+      str.getch # consume quote '"'
       read(size).tap { str.getch }
     end
 
+    # @raise [ParserError]
     # @return [Integer]
-    # @raise ParserError
     def parse_int
       str.scan(/:(\d+):?/)
       raise ParserError, "Failed to parse integer at position #{str.pos}" unless str.matched?
       str[1].to_i
     end
 
+    # @raise [ParserError]
     # @return [Float]
-    # @raise ParserError
     def parse_double
       str.scan(/:(\d+(?:\.\d+)?)/)
       raise ParserError, "Failed to parse double at position #{str.pos}" unless str.matched?
       str[1].to_f
     end
 
+    # @raise [ParserError]
     # @return [Boolean]
-    # @raise ParserError
     def parse_bool
       str.scan(/:([01])/)
       raise ParserError, "Failed to parse boolean at position #{str.pos}" unless str.matched?
@@ -100,7 +102,7 @@ module Firebug
     end
 
     # @param [String] s
-    # @raise ParserError if the next character is not `s`
+    # @raise [ParserError] if the next character is not `s`
     def expect(s)
       char = str.getch
       raise ParserError, "expected '#{s}' but got '#{char}' at position #{str.pos}" unless char == s

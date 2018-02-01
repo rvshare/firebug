@@ -5,6 +5,7 @@ module Firebug
     # Convert a ruby object into a PHP serialized string.
     #
     # @param [Object] obj
+    # @raise [ArgumentError] for unsupported types
     # @return [String]
     def self.parse(obj) # rubocop:disable AbcSize,CyclomaticComplexity
       case obj

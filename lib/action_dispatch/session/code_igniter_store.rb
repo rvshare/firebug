@@ -10,8 +10,11 @@ module ActionDispatch
         super(app, { key: 'default_pyrocms' }.merge(options))
       end
 
+      # Finds an existing session or creates a new one.
+      #
       # @param [ActionDispatch::Request] req
-      # @param [Hash] sid
+      # @param [String] sid
+      # @return [Array<String, Object>]
       def find_session(req, sid)
         model = find_session_model(req, sid)
         # +Rack::Session::Abstract::Persisted#load_session+ expects this to return an Array with the first value being
@@ -19,11 +22,13 @@ module ActionDispatch
         [model.session_id, model.user_data]
       end
 
+      # Writes the session information to the database.
+      #
       # @param [ActionDispatch::Request] req
       # @param [String] sid
       # @param [Hash] session
       # @param [Hash] _options
-      # @return [String]
+      # @return [String] encrypted and base64 encoded string of the session data.
       def write_session(req, sid, session, _options)
         model = find_session_model(req, sid)
         model_params = {
@@ -39,6 +44,8 @@ module ActionDispatch
         model.cookie_data
       end
 
+      # Deletes then creates a new session in the database.
+      #
       # @param [ActionDispatch::Request] req
       # @param [String] sid
       # @param [Hash] _options
@@ -50,11 +57,15 @@ module ActionDispatch
         find_session_model(req).session_id
       end
 
+      # Tries to find the session ID in the requests cookies.
+      #
       # @param [ActionDispatch::Request] req
       # @return [String, nil]
       def extract_session_id(req)
         sid = req.cookies[@key]
+        # returning `nil` just causes a new ID to be generated.
         return if sid.nil?
+        # sometimes the cookie contains just the session ID.
         return sid if sid.size <= 32
         Firebug.decrypt_cookie(sid)[:session_id]
       end
