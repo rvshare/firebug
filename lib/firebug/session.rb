@@ -22,5 +22,11 @@ module Firebug
       data = { session_id: session_id, ip_address: ip_address, user_agent: user_agent, last_activity: last_activity }
       Firebug.encrypt_cookie(data)
     end
+
+    private
+
+    def timestamp_attributes_for_update
+      ['last_activity']
+    end
   end
 end

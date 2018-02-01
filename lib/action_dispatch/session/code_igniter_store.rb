@@ -35,8 +35,7 @@ module ActionDispatch
           session_id: model.session_id,
           user_agent: req.user_agent || '', # user_agent can't be null
           ip_address: req.remote_ip || '',  # ip_address can't be null
-          user_data: session,
-          last_activity: Time.current.to_i
+          user_data: session
         }
         # Returning false will cause Rack to output a warning.
         return false unless model.update(model_params)
