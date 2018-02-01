@@ -43,7 +43,7 @@ module Firebug
       when 'N'
         expect(';')
       else
-        raise ParserError, "Unknown token '#{ch}' at position #{str.pos}"
+        raise ParserError, "Unknown token '#{ch}' at position #{str.pos} (#{str.string})"
       end
     end
 
