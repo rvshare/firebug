@@ -27,6 +27,7 @@ To use the Rails session store, create an initializer file with:
 ```ruby
 Firebug.configure do |config|
   config.key = 'encryption key'
+  config.table_name = 'sessions'
 end
 ```
 
