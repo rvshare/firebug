@@ -4,8 +4,10 @@ require_relative 'simplecov_env'
 SimpleCovEnv.start!
 
 require 'firebug'
-require 'securerandom'
+
+require 'action_dispatch'
 require 'base64'
+require 'securerandom'
 
 require_relative 'support/parse_matcher'
 require_relative 'support/active_record'

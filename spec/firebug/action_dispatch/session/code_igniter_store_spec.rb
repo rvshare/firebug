@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../../spec_helper'
-require 'action_dispatch/testing/test_request'
 
-# TODO(Aaron): Figure out how to use `ActionDispatch::TestRequest`
 RSpec.describe ActionDispatch::Session::CodeIgniterStore do
   let(:app) { spy.as_null_object }
 
@@ -21,7 +19,7 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
     end
   end
 
-  xdescribe '#find_session' do
+  describe '#find_session' do
     let(:request) { ActionDispatch::TestRequest.create }
     let(:store) { described_class.new(app) }
     let(:session_id) { store.generate_sid }
@@ -30,43 +28,105 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
       expect(store.find_session(request, session_id)).to be_an(Array)
     end
 
-    it 'sets first element to session ID'
-
-    it 'sets second element to session data'
-
-    context 'when there is an existing session' do
-      it 'returns that session ID'
-
-      it 'returns that session user_data'
+    it 'returns correct array elements' do
+      expect(store.find_session(request, session_id)).to match_array([String, nil])
     end
 
-    context 'when there is not an existing session' do
-      it 'creates a new session'
+    context 'when there is an existing session' do
+      let(:user_data) { { username: 'foobar' } }
+
+      before do
+        Firebug::Session.create!(
+          session_id: session_id,
+          last_activity: Time.current.to_i,
+          user_agent: request.user_agent,
+          ip_address: request.remote_ip,
+          user_data: { username: 'foobar' }
+        )
+      end
+
+      it 'returns the session ID' do
+        expect(store.find_session(request, session_id)).to include(session_id)
+      end
+
+      it 'returns the session user_data' do
+        expect(store.find_session(request, session_id)).to include(user_data)
+      end
     end
   end
 
   describe '#write_session' do
-    it 'returns the encrypted cookie value'
+    let(:request) { ActionDispatch::TestRequest.create }
+    let(:store) { described_class.new(app) }
+    let(:session_id) { store.generate_sid }
+    let(:session) { { username: 'foobar' } }
+
+    it 'returns a string' do
+      expect(store.write_session(request, session_id, session, nil)).to be_a(String)
+    end
 
     context 'when there is an existing session' do
-      it 'updates the session'
+      before do
+        Firebug::Session.create!(
+          session_id: session_id,
+          last_activity: Time.current.to_i,
+          user_agent: 'Foobar',
+          ip_address: request.remote_ip,
+          user_data: session
+        )
+      end
+
+      it 'updates the session' do
+        expect { store.write_session(request, session_id, session, nil) }.to(
+          change { Firebug::Session.find(session_id).inspect }
+        )
+      end
     end
 
     context 'when there is not an existing session' do
-      it 'creates a new session'
+      it 'creates a new session' do
+        expect { store.write_session(request, session_id, session, nil) }.to(
+          change { Firebug::Session.all.count }
+        )
+      end
     end
   end
 
   describe '#delete_session' do
-    it 'deletes the existing session'
+    let(:request) { ActionDispatch::TestRequest.create }
+    let(:store) { described_class.new(app) }
+    let(:session_id) { store.generate_sid }
 
-    it 'creates a new session'
+    before do
+      Firebug::Session.create!(
+        session_id: session_id,
+        last_activity: Time.current.to_i,
+        user_agent: 'Foobar',
+        ip_address: request.remote_ip,
+        user_data: { username: 'foobar' }
+      )
+    end
 
-    it 'returns a new session ID'
+    it 'deletes the existing session' do
+      expect { store.delete_session(request, session_id, nil) }.to(
+        change { Firebug::Session.find_by(session_id: session_id) }.from(anything).to(nil)
+      )
+    end
+
+    it 'creates a new session' do
+      # count wont change since it deletes the old session and creates a new one.
+      expect { store.delete_session(request, session_id, nil) }.not_to(
+        change { Firebug::Session.all.count }
+      )
+    end
+
+    it 'returns a new session ID' do
+      expect(store.delete_session(request, session_id, nil)).not_to eq(session_id)
+    end
   end
 
   describe '#extract_session_id' do
-    let(:request) { Rack::Request.new({}) }
+    let(:request) { ActionDispatch::TestRequest.create }
     let(:store) { described_class.new(app) }
 
     it 'returns nil when cookie is not found' do

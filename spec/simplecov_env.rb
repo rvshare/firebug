@@ -13,6 +13,8 @@ module SimpleCovEnv
 
     SimpleCov.configure do
       formatter SimpleCov::Formatter::MultiFormatter.new(formatters)
+      # Don't run coverage on the spec folder.
+      add_filter 'spec'
     end
   end
 

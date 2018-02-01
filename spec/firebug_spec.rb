@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'spec_helper'
-require 'securerandom'
 
 RSpec.describe Firebug do
   it 'has a version number' do
