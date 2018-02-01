@@ -91,6 +91,18 @@ jobs:
           path: coverage
           destination: test-coverage
 
+  run-rubocop:
+    <<: *defaults
+    steps:
+      - *restore_repo
+      - *attach_workspace
+      - run:
+          name: Install rubocop
+          command: gem install rubocop rubocop-rspec
+      - run:
+          name: Run rubocop
+          command: rubocop -c .rubocop.yml
+
 workflows:
   version: 2
   build-test:
@@ -99,6 +111,10 @@ workflows:
       - bundle-dependencies:
           requires:
             - checkout-code
+      - run-rubocop:
+          requires:
+            - checkout-code
       - run-specs:
           requires:
             - bundle-dependencies
+            - run-rubocop
