@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Firebug
-
   # A configuration object.
   #
   # @attr [String] key the encryption key used to encrypt and decrypt cookies.
