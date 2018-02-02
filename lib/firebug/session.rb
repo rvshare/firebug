@@ -17,6 +17,13 @@ module Firebug
       super(Firebug.serialize(value))
     end
 
+    # @param [String] value
+    def user_agent=(value)
+      # Pyro seems to truncate the value and since it also uses this value when finding the session, it's important
+      # we do the same.
+      super(value[0...120])
+    end
+
     # @return [String]
     def cookie_data
       data = { session_id: session_id, ip_address: ip_address, user_agent: user_agent, last_activity: last_activity }
