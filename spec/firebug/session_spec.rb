@@ -38,6 +38,13 @@ RSpec.describe Firebug::Session do
     end
   end
 
+  describe '#user_agent=' do
+    it 'truncates the value to 120 characters' do
+      model.user_agent = 'x' * 130
+      expect(model.user_agent.size).to eq(120)
+    end
+  end
+
   describe '#cookie_data' do
     it 'calls Firebug.encrypt_cookie' do
       model.cookie_data
