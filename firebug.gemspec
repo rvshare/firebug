@@ -12,7 +12,7 @@ Gem::Specification.new do |spec| # rubocop:disable BlockLength
 
   spec.summary       = 'Gem for working with CodeIgniter sessions'
   spec.description   = 'Gem for working with CodeIgniter sessions'
-  spec.homepage      = 'https://github.com/afrase/firebug'
+  spec.homepage      = 'https://github.com/rvshare/firebug'
   spec.license       = 'MIT'
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|

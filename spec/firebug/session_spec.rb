@@ -44,4 +44,11 @@ RSpec.describe Firebug::Session do
       expect(firebug_spy).to have_received(:encrypt_cookie)
     end
   end
+
+  # This is mostly just to get 100% test coverage.
+  describe '#timestamp_attributes_for_update' do
+    it 'returns array containing "last_activity"' do
+      expect(model.send(:timestamp_attributes_for_update)).to match_array(['last_activity'])
+    end
+  end
 end

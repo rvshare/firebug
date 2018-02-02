@@ -80,15 +80,6 @@ and then run `bundle exec rake release`, which will create a git tag for the
 version, push git commits and tags, and push the `.gem`file to
 [rubygems.org](https://rubygems.org).
 
-## Todo
-
-- [x] Add Rails session store support.
-- [ ] Support for serializing and unserializing classes.
-- [x] Add validation to unserializer. e.g. make sure length of string or
-      size of array is correct.
-- [ ] Complete this readme.
-- [ ] Create documentation.
-
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at
