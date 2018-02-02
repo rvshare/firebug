@@ -1,4 +1,4 @@
-# Firebug [![CircleCI](https://circleci.com/gh/afrase/firebug/tree/master.svg?style=svg)](https://circleci.com/gh/afrase/firebug/tree/master) [![Test Coverage](https://api.codeclimate.com/v1/badges/c77806b06de9ac609076/test_coverage)](https://codeclimate.com/github/afrase/firebug/test_coverage)
+# Firebug [![CircleCI](https://circleci.com/gh/rvshare/firebug.svg?style=svg)](https://circleci.com/gh/rvshare/firebug)
 
 A gem for working with CodeIgniter sessions in ruby.
 
