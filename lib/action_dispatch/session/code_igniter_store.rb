@@ -76,10 +76,7 @@ module ActionDispatch
       # @return [Firebug::Session]
       def find_session_model(req, sid=nil)
         if sid
-          p = { session_id: sid }
-          p[:ip_address] = req.ip if Firebug.configuration.match_ip
-          p[:user_agent] = req.user_agent if Firebug.configuration.match_useragent
-          model = Firebug::Session.find_by(p)
+          model = Firebug::Session.find_by(session_id: sid)
           return model if model
           sid = generate_sid
         end
