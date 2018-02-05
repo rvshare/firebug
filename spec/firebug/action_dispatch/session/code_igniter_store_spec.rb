@@ -221,8 +221,7 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
     end
 
     it 'creates a new session' do
-      # count wont change since it deletes the old session and creates a new one.
-      expect { store.delete_session(request, session_id, nil) }.not_to(
+      expect { store.delete_session(request, session_id, nil) }.to(
         change { Firebug::Session.all.count }
       )
     end

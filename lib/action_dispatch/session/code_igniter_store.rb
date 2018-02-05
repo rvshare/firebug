@@ -86,7 +86,7 @@ module ActionDispatch
           sid = generate_sid
         end
 
-        Firebug::Session.create!(
+        Firebug::Session.new(
           session_id: sid || generate_sid,
           last_activity: Time.current.to_i,
           user_agent: req.user_agent,
