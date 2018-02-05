@@ -18,10 +18,12 @@ RSpec.describe Firebug::Session do
       config.key = 'password'
       config.table_name = 'ci_sessions'
     end
+    config = Firebug.configuration
 
     allow(firebug_spy).to receive(:unserialize).with(String).and_return(Hash)
     allow(firebug_spy).to receive(:serialize).with(Object).and_return(String)
     allow(firebug_spy).to receive(:encrypt_cookie).with(Hash).and_return(String)
+    allow(firebug_spy).to receive(:configuration).and_return(config)
   end
 
   describe '#user_data' do
@@ -39,9 +41,22 @@ RSpec.describe Firebug::Session do
   end
 
   describe '#user_agent=' do
-    it 'truncates the value to 120 characters' do
-      model.user_agent = 'x' * 130
-      expect(model.user_agent.size).to eq(120)
+    context 'when truncate_useragent is true' do
+      before { Firebug.configuration.truncate_useragent = true }
+
+      it 'truncates the value to 120 characters' do
+        model.user_agent = 'x' * 130
+        expect(model.user_agent.size).to eq(120)
+      end
+    end
+
+    context 'when truncate_useragent is false' do
+      before { Firebug.configuration.truncate_useragent = false }
+
+      it 'does not truncate the useragent' do
+        model.user_agent = 'x' * 130
+        expect(model.user_agent.size).to eq(130)
+      end
     end
   end
 

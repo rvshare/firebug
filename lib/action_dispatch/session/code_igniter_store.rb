@@ -34,7 +34,7 @@ module ActionDispatch
         model_params = {
           session_id: model.session_id,
           user_agent: req.user_agent || '', # user_agent can't be null
-          ip_address: req.remote_ip || '',  # ip_address can't be null
+          ip_address: req.ip || '',         # ip_address can't be null
           user_data: session
         }
         # Returning false will cause Rack to output a warning.
@@ -76,7 +76,10 @@ module ActionDispatch
       # @return [Firebug::Session]
       def find_session_model(req, sid=nil)
         if sid
-          model = Firebug::Session.find_by(session_id: sid)
+          p = { session_id: sid }
+          p[:ip_address] = req.ip if Firebug.configuration.match_ip
+          p[:user_agent] = req.user_agent if Firebug.configuration.match_useragent
+          model = Firebug::Session.find_by(p)
           return model if model
         end
 
@@ -84,7 +87,7 @@ module ActionDispatch
           session_id: sid || generate_sid,
           last_activity: Time.current.to_i,
           user_agent: req.user_agent,
-          ip_address: req.remote_ip
+          ip_address: req.ip
         )
       end
     end
