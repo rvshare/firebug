@@ -7,12 +7,14 @@ module Firebug
   # @attr [String] table_name the name of the sessions table.
   # @attr [Boolean] truncate_useragent truncate the user-agent to 120 characters.
   # @attr [Boolean] match_user_agent use the user-agent in addition to the session ID.
+  # @attr [Boolean] match_ip_address use the remote ip address in addition to the session ID.
   class Configuration
     attr_reader :table_name
 
     attr_accessor :key
     attr_accessor :truncate_useragent
     attr_accessor :match_user_agent
+    attr_accessor :match_ip_address
 
     # Sets the table name for +Firebug::Session+
     #

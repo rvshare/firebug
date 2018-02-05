@@ -78,10 +78,11 @@ module ActionDispatch
         if sid
           p = { session_id: sid }
           p[:user_agent] = req.user_agent if Firebug.configuration.match_user_agent
+          p[:ip_address] = req.remote_ip if Firebug.configuration.match_ip_address
           model = Firebug::Session.find_by(p)
           return model if model
           # use a different session ID in case the reason for not finding the record is because the user_agent
-          # didn't match.
+          # or ip_address didn't match.
           sid = generate_sid
         end
 
