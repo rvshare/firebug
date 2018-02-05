@@ -41,8 +41,8 @@ RSpec.describe Firebug::Session do
   end
 
   describe '#user_agent=' do
-    context 'when truncate_useragent is true' do
-      before { Firebug.configuration.truncate_useragent = true }
+    context 'when truncate_user_agent is true' do
+      before { Firebug.configuration.truncate_user_agent = true }
 
       it 'truncates the value to 120 characters' do
         model.user_agent = 'x' * 130
@@ -50,8 +50,8 @@ RSpec.describe Firebug::Session do
       end
     end
 
-    context 'when truncate_useragent is false' do
-      before { Firebug.configuration.truncate_useragent = false }
+    context 'when truncate_user_agent is false' do
+      before { Firebug.configuration.truncate_user_agent = false }
 
       it 'does not truncate the useragent' do
         model.user_agent = 'x' * 130

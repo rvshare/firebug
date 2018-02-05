@@ -76,10 +76,7 @@ module ActionDispatch
       # @return [Firebug::Session]
       def find_session_model(req, sid=nil)
         if sid
-          p = { session_id: sid }
-          p[:user_agent] = req.user_agent if Firebug.configuration.match_user_agent
-          p[:ip_address] = req.remote_ip if Firebug.configuration.match_ip_address
-          model = Firebug::Session.find_by(p)
+          model = Firebug::Session.find_by(find_by_params(req, sid))
           return model if model
           # use a different session ID in case the reason for not finding the record is because the user_agent
           # or ip_address didn't match.
@@ -92,6 +89,18 @@ module ActionDispatch
           user_agent: req.user_agent,
           ip_address: req.remote_ip
         )
+      end
+
+      # @param [ActionDispatch::Request] req
+      # @param [String] sid
+      # @return [Hash]
+      def find_by_params(req, sid)
+        params = { session_id: sid }
+        params[:ip_address] = req.remote_ip if Firebug.configuration.match_ip_address
+        if Firebug.configuration.match_user_agent
+          params[:user_agent] = Firebug.configuration.truncate_user_agent ? req.user_agent[0...120] : req.user_agent
+        end
+        params
       end
     end
   end
