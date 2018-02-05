@@ -81,6 +81,7 @@ module ActionDispatch
           p[:user_agent] = req.user_agent if Firebug.configuration.match_useragent
           model = Firebug::Session.find_by(p)
           return model if model
+          p[:session_id] = generate_sid
         end
 
         Firebug::Session.create!(
