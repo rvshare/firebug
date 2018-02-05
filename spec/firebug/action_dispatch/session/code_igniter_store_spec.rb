@@ -9,6 +9,7 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
     Firebug.configure do |config|
       config.key = 'password'
       config.table_name = 'ci_sessions'
+      config.match_user_agent = false
     end
   end
 
@@ -41,7 +42,7 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
           last_activity: Time.current.to_i,
           user_agent: request.user_agent,
           ip_address: request.remote_ip,
-          user_data: { username: 'foobar' }
+          user_data: user_data
         )
       end
 
@@ -51,6 +52,48 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
 
       it 'returns the session user_data' do
         expect(store.find_session(request, session_id)).to include(user_data)
+      end
+    end
+
+    context 'when Configuration.match_user_agent is true' do
+      before do
+        Firebug.configuration.match_user_agent = true
+        Firebug::Session.create!(
+          session_id: session_id,
+          last_activity: Time.current.to_i,
+          user_agent: request.user_agent,
+          ip_address: request.remote_ip,
+        )
+      end
+
+      it 'returns a new session for different user-agent' do
+        request.user_agent = 'foobar'
+        expect(store.find_session(request, session_id)).not_to include(session_id)
+      end
+
+      it 'returns the same session' do
+        expect(store.find_session(request, session_id)).to include(session_id)
+      end
+    end
+
+    context 'when Configuration.match_user_agent is false' do
+      before do
+        Firebug.configuration.match_user_agent = false
+        Firebug::Session.create!(
+          session_id: session_id,
+          last_activity: Time.current.to_i,
+          user_agent: request.user_agent,
+          ip_address: request.remote_ip,
+        )
+      end
+
+      it 'returns same session for different user-agent' do
+        request.user_agent = 'foobar'
+        expect(store.find_session(request, session_id)).to include(session_id)
+      end
+
+      it 'returns the same session' do
+        expect(store.find_session(request, session_id)).to include(session_id)
       end
     end
   end
