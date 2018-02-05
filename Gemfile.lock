@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    firebug (0.1.4)
+    firebug (0.1.5)
       actionpack (~> 5.0)
       activerecord (~> 5.0)
       ruby-mcrypt (~> 0.2)
