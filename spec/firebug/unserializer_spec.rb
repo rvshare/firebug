@@ -79,7 +79,7 @@ RSpec.describe Firebug::Unserializer do
 
   context 'when parsing arrays' do
     it 'can parse an empty array' do
-      expect(described_class).to parse('a:0:{}').as([])
+      expect(described_class).to parse('a:0:{}').as({})
     end
 
     it 'can parse an array of strings' do
@@ -103,7 +103,7 @@ RSpec.describe Firebug::Unserializer do
     end
 
     it 'can parse an array of arrays' do
-      expect(described_class).to parse('a:1:{i:0;a:0:{}}').as([[]])
+      expect(described_class).to parse('a:1:{i:0;a:0:{}}').as([{}])
     end
 
     it 'can parse an array of mixed types' do
@@ -113,7 +113,7 @@ RSpec.describe Firebug::Unserializer do
 
   context 'when parsing hashes' do
     it 'can parse an empty hash' do
-      expect(described_class).to parse('a:0:{}').as([])
+      expect(described_class).to parse('a:0:{}').as({})
     end
 
     it 'can parse a hash with string values' do
