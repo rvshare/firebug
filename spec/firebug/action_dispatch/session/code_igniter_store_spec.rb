@@ -9,6 +9,8 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
     Firebug.configure do |config|
       config.key = 'password'
       config.table_name = 'ci_sessions'
+      config.match_user_agent = false
+      config.match_ip_address = false
     end
   end
 
@@ -23,34 +25,125 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
     let(:request) { ActionDispatch::TestRequest.create }
     let(:store) { described_class.new(app) }
     let(:session_id) { store.generate_sid }
+    let(:user_data) { { username: 'foobar' } }
+
+    before do
+      Firebug::Session.create!(
+        session_id: session_id,
+        last_activity: Time.current.to_i,
+        user_agent: request.user_agent,
+        ip_address: request.remote_ip,
+        user_data: user_data
+      )
+    end
 
     it 'returns an array' do
       expect(store.find_session(request, session_id)).to be_an(Array)
     end
 
     it 'returns correct array elements' do
-      expect(store.find_session(request, session_id)).to match_array([String, nil])
+      expect(store.find_session(request, session_id)).to match_array([String, Hash])
     end
 
     context 'when there is an existing session' do
-      let(:user_data) { { username: 'foobar' } }
-
-      before do
-        Firebug::Session.create!(
-          session_id: session_id,
-          last_activity: Time.current.to_i,
-          user_agent: request.user_agent,
-          ip_address: request.remote_ip,
-          user_data: { username: 'foobar' }
-        )
-      end
-
       it 'returns the session ID' do
         expect(store.find_session(request, session_id)).to include(session_id)
       end
 
       it 'returns the session user_data' do
         expect(store.find_session(request, session_id)).to include(user_data)
+      end
+    end
+
+    context 'when match_user_agent is false and match_ip_address is false' do
+      before do
+        Firebug.configuration.match_user_agent = false
+        Firebug.configuration.match_ip_address = false
+      end
+
+      it 'returns same session for different user-agent' do
+        request.user_agent = 'foobar'
+        expect(store.find_session(request, session_id)).to include(session_id)
+      end
+
+      it 'returns same session for different ip address' do
+        request.instance_variable_set(:@remote_ip, '127.0.0.2')
+        expect(store.find_session(request, session_id)).to include(session_id)
+      end
+
+      it 'returns the same session for different user-agent and ip address' do
+        request.user_agent = 'foobar'
+        request.instance_variable_set(:@remote_ip, '127.0.0.2')
+        expect(store.find_session(request, session_id)).to include(session_id)
+      end
+    end
+
+    context 'when match_user_agent is true and match_ip_address is false' do
+      before do
+        Firebug.configuration.match_user_agent = true
+        Firebug.configuration.match_ip_address = false
+      end
+
+      it 'returns a new session for different user-agent' do
+        request.user_agent = 'foobar'
+        expect(store.find_session(request, session_id)).not_to include(session_id)
+      end
+
+      it 'returns same session for different ip address' do
+        request.instance_variable_set(:@remote_ip, '127.0.0.2')
+        expect(store.find_session(request, session_id)).to include(session_id)
+      end
+
+      it 'returns new session for different user-agent and ip address' do
+        request.user_agent = 'foobar'
+        request.instance_variable_set(:@remote_ip, '127.0.0.2')
+        expect(store.find_session(request, session_id)).not_to include(session_id)
+      end
+    end
+
+    context 'when match_user_agent is false and match_ip_address is true' do
+      before do
+        Firebug.configuration.match_user_agent = false
+        Firebug.configuration.match_ip_address = true
+      end
+
+      it 'returns same session for different user-agent' do
+        request.user_agent = 'foobar'
+        expect(store.find_session(request, session_id)).to include(session_id)
+      end
+
+      it 'returns new session for different ip address' do
+        request.instance_variable_set(:@remote_ip, '127.0.0.2')
+        expect(store.find_session(request, session_id)).not_to include(session_id)
+      end
+
+      it 'returns new session for different user-agent and ip address' do
+        request.user_agent = 'foobar'
+        request.instance_variable_set(:@remote_ip, '127.0.0.2')
+        expect(store.find_session(request, session_id)).not_to include(session_id)
+      end
+    end
+
+    context 'when match_user_agent is true and match_ip_address is true' do
+      before do
+        Firebug.configuration.match_user_agent = true
+        Firebug.configuration.match_ip_address = true
+      end
+
+      it 'returns new session for different user-agent' do
+        request.user_agent = 'foobar'
+        expect(store.find_session(request, session_id)).not_to include(session_id)
+      end
+
+      it 'returns new session for different ip address' do
+        request.instance_variable_set(:@remote_ip, '127.0.0.2')
+        expect(store.find_session(request, session_id)).not_to include(session_id)
+      end
+
+      it 'returns new session for different user-agent and ip address' do
+        request.user_agent = 'foobar'
+        request.instance_variable_set(:@remote_ip, '127.0.0.2')
+        expect(store.find_session(request, session_id)).not_to include(session_id)
       end
     end
   end
@@ -128,8 +221,7 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
     end
 
     it 'creates a new session' do
-      # count wont change since it deletes the old session and creates a new one.
-      expect { store.delete_session(request, session_id, nil) }.not_to(
+      expect { store.delete_session(request, session_id, nil) }.to(
         change { Firebug::Session.all.count }
       )
     end

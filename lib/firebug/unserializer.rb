@@ -51,10 +51,10 @@ module Firebug
 
     # @raise [ParseError]
     # @return [Hash, Array]
-    def parse_enumerable # rubocop:disable AbcSize
+    def parse_enumerable
       size = parse_int
       expect('{')
-      return [] if size.zero?
+      return {} if size.zero?
       if str.peek(1) == 'i'
         # Multiply the size by 2 since the array index isn't counted in the size.
         # Odd number element will be the index value so drop it.
