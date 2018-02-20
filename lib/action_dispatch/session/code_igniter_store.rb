@@ -2,6 +2,7 @@
 
 require 'action_dispatch'
 require_relative '../../firebug/session'
+require_relative '../../firebug/errors'
 
 module ActionDispatch
   module Session
@@ -66,7 +67,18 @@ module ActionDispatch
         return if sid.nil?
         # sometimes the cookie contains just the session ID.
         return sid if sid.size <= 32
-        Firebug.decrypt_cookie(sid)[:session_id]
+
+        begin
+          Firebug.decrypt_cookie(sid)[:session_id]
+        rescue Firebug::UnknownTokenError => e
+          # Since Pyro doesn't use a MAC we can't validate decryption. So if we get a parser error on the first
+          # character we assume it's because the data wasn't decrypted correctly. If not it's probably something else.
+          raise if e.parser.str.pos != 1
+          req.get_header(Rack::RACK_ERRORS).puts(
+            'Warning! Failed to decrypt session cookie, probably encrypted with a different key. Generating new session'
+          )
+          generate_sid
+        end
       end
 
       private
