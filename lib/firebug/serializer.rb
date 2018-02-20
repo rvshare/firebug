@@ -7,7 +7,7 @@ module Firebug
     # @param [Object] obj
     # @raise [ArgumentError] for unsupported types
     # @return [String]
-    def self.parse(obj) # rubocop:disable AbcSize,CyclomaticComplexity
+    def self.parse(obj) # rubocop:disable CyclomaticComplexity
       case obj
       when NilClass
         'N;'

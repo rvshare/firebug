@@ -51,7 +51,7 @@ module Firebug
 
     # @raise [ParseError]
     # @return [Hash, Array]
-    def parse_enumerable # rubocop:disable AbcSize
+    def parse_enumerable
       size = parse_int
       expect('{')
       return [] if size.zero?

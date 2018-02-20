@@ -13,6 +13,9 @@ Style/ClassAndModuleChildren:
 Style/Documentation:
   Enabled: false
 
+Metrics/AbcSize:
+  Max: 18
+
 Metrics/LineLength:
   # Commonly used screens these days easily fit more than 80 characters.
   Max: 120
