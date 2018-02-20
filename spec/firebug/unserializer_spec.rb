@@ -38,8 +38,10 @@ RSpec.describe Firebug::Unserializer do
       expect(described_class).to parse('i:42;').as(42)
     end
 
-    it 'fails to parse incorrect value' do
-      expect(described_class).not_to parse('i:foo;')
+    context 'when integer is invalid' do
+      it 'raises IntegerParseError' do
+        expect { described_class.parse('i:foo;') }.to raise_error(Firebug::IntegerParseError)
+      end
     end
   end
 
@@ -55,6 +57,12 @@ RSpec.describe Firebug::Unserializer do
     it 'can parse a float with a 0 decimal' do
       expect(described_class).to parse('d:9.0;').as(9.0)
     end
+
+    context 'when float is invalid' do
+      it 'raises DoubleParseError' do
+        expect { described_class.parse('d:foo;') }.to raise_error(Firebug::DoubleParseError)
+      end
+    end
   end
 
   context 'when parsing booleans' do
@@ -65,6 +73,12 @@ RSpec.describe Firebug::Unserializer do
     it 'can parse a false value' do
       expect(described_class).to parse('b:0;').as(false)
     end
+
+    context 'when boolean is invalid' do
+      it 'raises BooleanParseError' do
+        expect { described_class.parse('b:2;') }.to raise_error(Firebug::BooleanParseError)
+      end
+    end
   end
 
   context 'when parsing nulls' do
@@ -73,7 +87,7 @@ RSpec.describe Firebug::Unserializer do
     end
 
     it 'wont parse an invalid null' do
-      expect { described_class.parse('n;') }.to raise_error(Firebug::ParserError)
+      expect { described_class.parse('n;') }.to raise_error(Firebug::UnknownTokenError)
     end
   end
 
@@ -146,6 +160,12 @@ RSpec.describe Firebug::Unserializer do
 
     it 'can parse a hash with mixed type values' do
       expect(described_class).to parse('a:3:{s:1:"a";s:3:"bar";s:1:"b";i:1;s:1:"c";b:0;}').as(a: 'bar', b: 1, c: false)
+    end
+  end
+
+  context 'when errors in parsing' do
+    it 'raises an UnknownTokenError error' do
+      expect { described_class.parse('foo') }.to raise_error Firebug::UnknownTokenError
     end
   end
 end

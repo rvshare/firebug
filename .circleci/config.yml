@@ -66,22 +66,15 @@ jobs:
       - *attach_workspace
       - run:
           name: Set bundler path
-          command: bundle --path vendor/bundle
-      - run:
-          name: Setup Code Climate test-reporter
-          command: |
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-            chmod +x ./cc-test-reporter
+          command: bin/bundle --path vendor/bundle
       - run:
           name: Run tests
           command: |
-            ./cc-test-reporter before-build
             bin/bundle exec rspec --profile 10 \
                                   --format RspecJunitFormatter \
                                   --out test_results/rspec.xml \
                                   --format progress \
                                   $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
-            ./cc-test-reporter after-build -t simplecov coverage/.resultset.json
       - store_test_results:
           path: test_results
       - store_artifacts:
@@ -97,11 +90,11 @@ jobs:
       - *restore_repo
       - *attach_workspace
       - run:
-          name: Install rubocop
-          command: gem install rubocop rubocop-rspec
+          name: Set bundler path
+          command: bin/bundle --path vendor/bundle
       - run:
           name: Run rubocop
-          command: rubocop -c .rubocop.yml
+          command: bin/bundle exec rubocop
 
 workflows:
   version: 2

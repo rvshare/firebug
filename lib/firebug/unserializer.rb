@@ -11,20 +11,24 @@ module Firebug
   class Unserializer
     attr_accessor :str
 
-    # @param [String] string
+    # @param [String] string the string to unserialize
     def initialize(string)
       self.str = StringScanner.new(string)
     end
 
     # Convenience method for unserializing a PHP serialized string.
     #
-    # @param [String] value
+    # @raise [Firebug::ParseError]
+    # @param [String] value the string to unserialize
     # @return [Object]
     def self.parse(value)
       new(value).parse
     end
 
-    # @raise [ParserError]
+    # Parse +str+ into a Ruby object
+    #
+    # @raise [Firebug::ParseError]
+    # @return [Object]
     def parse # rubocop:disable AbcSize,CyclomaticComplexity
       ch = str.getch
       return if ch.nil?
@@ -43,13 +47,13 @@ module Firebug
       when 'N'
         expect(';')
       else
-        raise ParserError, "Unknown token '#{ch}' at position #{str.pos} (#{str.string})"
+        raise Firebug::UnknownTokenError.new("Unknown token '#{ch}' at position #{str.pos} (#{str.string})", self)
       end
     end
 
     private
 
-    # @raise [ParseError]
+    # @raise [Firebug::ParseError]
     # @return [Hash, Array]
     def parse_enumerable
       size = parse_int
@@ -67,31 +71,31 @@ module Firebug
     # @return [String]
     def parse_string
       size = parse_int
-      str.getch # consume quote '"'
-      read(size).tap { str.getch }
+      expect('"') # consume quote '"'
+      read(size).tap { expect('"') }
     end
 
-    # @raise [ParserError]
+    # @raise [Firebug::IntegerParseError]
     # @return [Integer]
     def parse_int
       str.scan(/:(\d+):?/)
-      raise ParserError, "Failed to parse integer at position #{str.pos}" unless str.matched?
+      raise Firebug::IntegerParseError.new("Failed to parse integer at position #{str.pos}", self) unless str.matched?
       str[1].to_i
     end
 
-    # @raise [ParserError]
+    # @raise [Firebug::DoubleParseError]
     # @return [Float]
     def parse_double
       str.scan(/:(\d+(?:\.\d+)?)/)
-      raise ParserError, "Failed to parse double at position #{str.pos}" unless str.matched?
+      raise Firebug::DoubleParseError.new("Failed to parse double at position #{str.pos}", self) unless str.matched?
       str[1].to_f
     end
 
-    # @raise [ParserError]
+    # @raise [Firebug::BooleanParseError]
     # @return [Boolean]
     def parse_bool
       str.scan(/:([01])/)
-      raise ParserError, "Failed to parse boolean at position #{str.pos}" unless str.matched?
+      raise Firebug::BooleanParseError.new("Failed to parse boolean at position #{str.pos}", self) unless str.matched?
       str[1] == '1'
     end
 
@@ -101,14 +105,11 @@ module Firebug
       Array.new(size) { str.get_byte }.join
     end
 
+    # @raise [Firebug::ParseError] if the next character is not `s`
     # @param [String] s
-    # @raise [ParserError] if the next character is not `s`
     def expect(s)
       char = str.getch
-      raise ParserError, "expected '#{s}' but got '#{char}' at position #{str.pos}" unless char == s
+      raise Firebug::ParseError.new("expected '#{s}' but got '#{char}' at position #{str.pos}", self) unless char == s
     end
-  end
-
-  class ParserError < StandardError
   end
 end

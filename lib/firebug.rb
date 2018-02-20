@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'firebug/version'
+require_relative 'firebug/errors'
 require_relative 'firebug/crypto'
 require_relative 'firebug/serializer'
 require_relative 'firebug/unserializer'
