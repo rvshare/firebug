@@ -77,7 +77,6 @@ module ActionDispatch
           req.get_header(Rack::RACK_ERRORS).puts(
             'Warning! Failed to decrypt session cookie, probably encrypted with a different key. Generating new session'
           )
-          generate_sid
         end
       end
 
