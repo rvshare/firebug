@@ -48,6 +48,12 @@ RSpec.describe Firebug::Session do
         model.user_agent = 'x' * 130
         expect(model.user_agent.size).to eq(120)
       end
+
+      context 'when user-agent is nil' do
+        it 'does not raise an error' do
+          expect { model.user_agent = nil }.not_to raise_error
+        end
+      end
     end
 
     context 'when truncate_user_agent is false' do
