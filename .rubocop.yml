@@ -39,3 +39,6 @@ Layout/SpaceAroundEqualsInParameterDefault:
 Style/SymbolArray:
   # We do not need to support Ruby 1.9, so this is good to use.
   Enabled: true
+
+RSpec/NestedGroups:
+  Max: 5
