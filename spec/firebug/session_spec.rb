@@ -14,16 +14,15 @@ RSpec.describe Firebug::Session do
   end
 
   before do
-    Firebug.configure do |config|
-      config.key = 'password'
-      config.table_name = 'ci_sessions'
-    end
-    config = Firebug.configuration
+    config = Firebug::Configuration.new
+    config.key = 'password'
+    config.table_name = 'ci_sessions'
 
     allow(firebug_spy).to receive(:unserialize).with(String).and_return(Hash)
     allow(firebug_spy).to receive(:serialize).with(Object).and_return(String)
     allow(firebug_spy).to receive(:encrypt_cookie).with(Hash).and_return(String)
     allow(firebug_spy).to receive(:configuration).and_return(config)
+    allow(firebug_spy).to receive(:config).and_return(config)
   end
 
   describe '#user_data' do

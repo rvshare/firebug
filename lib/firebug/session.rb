@@ -21,7 +21,7 @@ module Firebug
     def user_agent=(value)
       # Pyro seems to truncate the value and since it also uses this value when finding the session, it's important
       # we do the same.
-      super(Firebug.configuration.truncate_user_agent ? value&.slice(0...120) : value)
+      super(Firebug.config.truncate_user_agent ? value&.slice(0...120) : value)
     end
 
     # @return [String]
