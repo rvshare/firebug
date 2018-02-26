@@ -124,6 +124,7 @@ module ActionDispatch
 
         Firebug::Session.new(
           session_id: sid || generate_sid,
+          last_activity: Time.current.to_i,
           user_agent: req.user_agent,
           ip_address: req.remote_ip
         )
