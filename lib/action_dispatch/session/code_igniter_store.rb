@@ -5,6 +5,7 @@ require_relative '../../firebug/session'
 
 module ActionDispatch
   module Session
+    # A session store for Rails to handle Pyro sessions.
     class CodeIgniterStore < AbstractStore
       # @param [Object] app
       # @param [Hash] options
@@ -17,9 +18,13 @@ module ActionDispatch
 
       # Finds an existing session or creates a new one.
       #
+      # @!visibility public
+      #
+      # @see http://api.rubyonrails.org/classes/ActionDispatch/Request.html ActionDispatch::Request
+      #
       # @param [ActionDispatch::Request] req
       # @param [String] sid
-      # @return [Array<String, Object>]
+      # @return [Array<String, Hash>]
       def find_session(req, sid)
         model = find_session_model(req, sid)
         # +Rack::Session::Abstract::Persisted#load_session+ expects this to return an Array with the first value being
@@ -29,7 +34,13 @@ module ActionDispatch
 
       # Should the session be persisted?
       #
-      # This is called from +Rack::Session::Abstract::Persisted#commit_session+.
+      # @note This is called from +Rack::Session::Abstract::Persisted#commit_session+.
+      #
+      # @!visibility public
+      #
+      # @see http://www.rubydoc.info/gems/rack/Rack/Session/Abstract/Persisted#commit_session-instance_method
+      #   Rack::Session::Abstract::Persisted#commit_session
+      # @see http://api.rubyonrails.org/classes/ActionDispatch/Request.html ActionDispatch::Request
       #
       # @param [ActionDispatch::Request] req
       # @param [Hash] session
@@ -41,6 +52,10 @@ module ActionDispatch
       end
 
       # Writes the session information to the database.
+      #
+      # @!visibility public
+      #
+      # @see http://api.rubyonrails.org/classes/ActionDispatch/Request.html ActionDispatch::Request
       #
       # @param [ActionDispatch::Request] req
       # @param [String] sid
@@ -63,6 +78,10 @@ module ActionDispatch
 
       # Deletes then creates a new session in the database.
       #
+      # @!visibility public
+      #
+      # @see http://api.rubyonrails.org/classes/ActionDispatch/Request.html ActionDispatch::Request
+      #
       # @param [ActionDispatch::Request] req
       # @param [String] sid
       # @param [Hash] _options
@@ -75,6 +94,10 @@ module ActionDispatch
       end
 
       # Tries to find the session ID in the requests cookies.
+      #
+      # @!visibility public
+      #
+      # @see http://api.rubyonrails.org/classes/ActionDispatch/Request.html ActionDispatch::Request
       #
       # @param [ActionDispatch::Request] req
       # @return [String, nil]

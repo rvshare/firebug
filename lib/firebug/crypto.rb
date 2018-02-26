@@ -5,22 +5,27 @@ module Firebug
   require 'securerandom'
   require 'mcrypt'
 
+  # Class for encrypting and decrypting Pyro cookies.
   class Crypto
     # @param [String] key
     def initialize(key)
       @key = Digest::MD5.hexdigest(key)
     end
 
+    # Encrypts +data+ using the Rijndael 256 cipher.
+    #
     # @param [String] data
     # @return [String]
     def encrypt(data)
       # Create a random 32 byte string to act as the initialization vector.
       iv = SecureRandom.random_bytes(32)
-      # CodeIgniter pads the data with zeros
+      # Pyro pads the data with zeros
       cipher = Mcrypt.new(:rijndael_256, :cbc, @key, iv, :zeros)
       add_noise(iv + cipher.encrypt(data))
     end
 
+    # Decrypts +data+ using the Rijndael 256 cipher.
+    #
     # @param [String] data
     # @return [String]
     def decrypt(data)
@@ -31,7 +36,7 @@ module Firebug
       cipher.decrypt(data[32..-1])
     end
 
-    # CodeIgniter adds "noise" to the results of the encryption by adding the ordinal value of each character with a
+    # Pyro adds "noise" to the results of the encryption by adding the ordinal value of each character with a
     # value in the key. The plaintext key is hashed with MD5 then SHA1.
     #
     # @param [String] data
@@ -40,6 +45,8 @@ module Firebug
     end
 
     # The "noise" is removed by subtracting the ordinals.
+    #
+    # @see #add_noise
     #
     # @param [String] data
     # @return [String]

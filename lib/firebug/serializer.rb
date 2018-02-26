@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Firebug
+  # A class for converting a Ruby object into a PHP serialized string.
   class Serializer
     # Convert a ruby object into a PHP serialized string.
     #
