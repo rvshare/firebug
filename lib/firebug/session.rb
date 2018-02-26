@@ -32,6 +32,9 @@ module Firebug
 
     private
 
+    # Replace the default timestamp column name.
+    #
+    # @return [Array<String>]
     def timestamp_attributes_for_update
       ['last_activity']
     end
