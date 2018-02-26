@@ -5,16 +5,26 @@ require_relative '../../firebug/session'
 
 module ActionDispatch
   module Session
+    # A session store for Rails to handle Pyro sessions.
     class CodeIgniterStore < AbstractStore
+      # @param [Object] app
+      # @param [Hash] options
+      # @option options [String] :key ('default_pyrocms') The session cookie name.
       def initialize(app, options={})
         super(app, { key: 'default_pyrocms' }.merge(options))
       end
 
+      private
+
       # Finds an existing session or creates a new one.
+      #
+      # @!visibility public
+      #
+      # @see http://api.rubyonrails.org/classes/ActionDispatch/Request.html ActionDispatch::Request
       #
       # @param [ActionDispatch::Request] req
       # @param [String] sid
-      # @return [Array<String, Object>]
+      # @return [Array<String, Hash>]
       def find_session(req, sid)
         model = find_session_model(req, sid)
         # +Rack::Session::Abstract::Persisted#load_session+ expects this to return an Array with the first value being
@@ -22,7 +32,30 @@ module ActionDispatch
         [model.session_id, model.user_data]
       end
 
+      # Should the session be persisted?
+      #
+      # @note This is called from +Rack::Session::Abstract::Persisted#commit_session+.
+      #
+      # @!visibility public
+      #
+      # @see http://www.rubydoc.info/gems/rack/Rack/Session/Abstract/Persisted#commit_session-instance_method
+      #   Rack::Session::Abstract::Persisted#commit_session
+      # @see http://api.rubyonrails.org/classes/ActionDispatch/Request.html ActionDispatch::Request
+      #
+      # @param [ActionDispatch::Request] req
+      # @param [Hash] session
+      # @param [Hash] options
+      # @return [Boolean] when true #write_session will be called
+      def commit_session?(req, session, options)
+        # If session_filter returns true then let super decide if we commit the session.
+        Firebug.config.session_filter.call(req) ? super : false
+      end
+
       # Writes the session information to the database.
+      #
+      # @!visibility public
+      #
+      # @see http://api.rubyonrails.org/classes/ActionDispatch/Request.html ActionDispatch::Request
       #
       # @param [ActionDispatch::Request] req
       # @param [String] sid
@@ -45,6 +78,10 @@ module ActionDispatch
 
       # Deletes then creates a new session in the database.
       #
+      # @!visibility public
+      #
+      # @see http://api.rubyonrails.org/classes/ActionDispatch/Request.html ActionDispatch::Request
+      #
       # @param [ActionDispatch::Request] req
       # @param [String] sid
       # @param [Hash] _options
@@ -58,6 +95,10 @@ module ActionDispatch
 
       # Tries to find the session ID in the requests cookies.
       #
+      # @!visibility public
+      #
+      # @see http://api.rubyonrails.org/classes/ActionDispatch/Request.html ActionDispatch::Request
+      #
       # @param [ActionDispatch::Request] req
       # @return [String, nil]
       def extract_session_id(req)
@@ -68,8 +109,6 @@ module ActionDispatch
         return sid if sid.size <= 32
         Firebug.decrypt_cookie(sid)[:session_id]
       end
-
-      private
 
       # @param [ActionDispatch::Request] req
       # @param [String] sid
@@ -96,9 +135,9 @@ module ActionDispatch
       # @return [Hash]
       def find_by_params(req, sid)
         params = { session_id: sid }
-        params[:ip_address] = req.remote_ip if Firebug.configuration.match_ip_address
-        if Firebug.configuration.match_user_agent
-          params[:user_agent] = Firebug.configuration.truncate_user_agent ? req.user_agent[0...120] : req.user_agent
+        params[:ip_address] = req.remote_ip if Firebug.config.match_ip_address
+        if Firebug.config.match_user_agent
+          params[:user_agent] = Firebug.config.truncate_user_agent ? req.user_agent&.slice(0...120) : req.user_agent
         end
         params
       end
