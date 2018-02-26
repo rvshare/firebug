@@ -6,9 +6,14 @@ require_relative '../../firebug/session'
 module ActionDispatch
   module Session
     class CodeIgniterStore < AbstractStore
+      # @param [Object] app
+      # @param [Hash] options
+      # @option options [String] :key ('default_pyrocms') The session cookie name.
       def initialize(app, options={})
         super(app, { key: 'default_pyrocms' }.merge(options))
       end
+
+      private
 
       # Finds an existing session or creates a new one.
       #
@@ -20,6 +25,19 @@ module ActionDispatch
         # +Rack::Session::Abstract::Persisted#load_session+ expects this to return an Array with the first value being
         # the session ID and the second the actual session data.
         [model.session_id, model.user_data]
+      end
+
+      # Should the session be persisted?
+      #
+      # This is called from +Rack::Session::Abstract::Persisted#commit_session+.
+      #
+      # @param [ActionDispatch::Request] req
+      # @param [Hash] session
+      # @param [Hash] options
+      # @return [Boolean] when true #write_session will be called
+      def commit_session?(req, session, options)
+        # If session_filter returns true then let super decide if we commit the session.
+        Firebug.config.session_filter.call(req) ? super : false
       end
 
       # Writes the session information to the database.
@@ -69,8 +87,6 @@ module ActionDispatch
         Firebug.decrypt_cookie(sid)[:session_id]
       end
 
-      private
-
       # @param [ActionDispatch::Request] req
       # @param [String] sid
       # @return [Firebug::Session]
@@ -96,9 +112,9 @@ module ActionDispatch
       # @return [Hash]
       def find_by_params(req, sid)
         params = { session_id: sid }
-        params[:ip_address] = req.remote_ip if Firebug.configuration.match_ip_address
-        if Firebug.configuration.match_user_agent
-          params[:user_agent] = Firebug.configuration.truncate_user_agent ? req.user_agent[0...120] : req.user_agent
+        params[:ip_address] = req.remote_ip if Firebug.config.match_ip_address
+        if Firebug.config.match_user_agent
+          params[:user_agent] = Firebug.config.truncate_user_agent ? req.user_agent&.slice(0...120) : req.user_agent
         end
         params
       end

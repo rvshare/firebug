@@ -2,8 +2,13 @@
 
 require_relative '../../../spec_helper'
 
+# Convert all the private methods into public ones so it's easier to test.
+class ActionDispatch::Session::CodeIgniterStore
+  private_instance_methods(false).each { |m| public m }
+end
+
 RSpec.describe ActionDispatch::Session::CodeIgniterStore do
-  let(:app) { spy.as_null_object }
+  let(:app) { spy }
 
   before do
     Firebug.configure do |config|
@@ -144,6 +149,27 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
         request.user_agent = 'foobar'
         request.instance_variable_set(:@remote_ip, '127.0.0.2')
         expect(store.find_session(request, session_id)).not_to include(session_id)
+      end
+    end
+  end
+
+  describe '#commit_session?' do
+    let(:request) { ActionDispatch::TestRequest.create }
+    let(:store) { described_class.new(app) }
+    let(:session) { {} }
+    let(:options) { {} }
+
+    it 'returns true' do
+      expect(store.commit_session?(request, session, options)).to be(true)
+    end
+
+    context 'when session filter returns false' do
+      before do
+        Firebug.config.session_filter = ->(_) { false }
+      end
+
+      it 'returns false' do
+        expect(store.commit_session?(request, session, options)).to be(false)
       end
     end
   end
