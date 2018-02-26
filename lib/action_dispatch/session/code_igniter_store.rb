@@ -6,6 +6,9 @@ require_relative '../../firebug/session'
 module ActionDispatch
   module Session
     class CodeIgniterStore < AbstractStore
+      # @param [Object] app
+      # @param [Hash] options
+      # @option options [String] :key ('default_pyrocms') The session cookie name.
       def initialize(app, options={})
         super(app, { key: 'default_pyrocms' }.merge(options))
       end
@@ -24,9 +27,14 @@ module ActionDispatch
         [model.session_id, model.user_data]
       end
 
+      # Should the session be persisted?
+      #
+      # This is called from +Rack::Session::Abstract::Persisted#commit_session+.
+      #
       # @param [ActionDispatch::Request] req
       # @param [Hash] session
       # @param [Hash] options
+      # @return [Boolean] when true #write_session will be called
       def commit_session?(req, session, options)
         # If session_filter returns true then let super decide if we commit the session.
         Firebug.config.session_filter.call(req) ? super : false
