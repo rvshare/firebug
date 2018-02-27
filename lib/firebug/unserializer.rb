@@ -5,8 +5,6 @@ module Firebug
 
   # This class will unserialize a PHP serialized string into a ruby object.
   #
-  # @note Hashes will be returned with symbolized keys.
-  #
   # @attr [StringScanner] str
   class Unserializer
     attr_accessor :str
@@ -18,6 +16,8 @@ module Firebug
 
     # Convenience method for unserializing a PHP serialized string.
     #
+    # @see #parse
+    #
     # @raise [Firebug::ParseError]
     # @param [String] value the string to unserialize
     # @return [Object]
@@ -25,10 +25,12 @@ module Firebug
       new(value).parse
     end
 
-    # Parse +str+ into a Ruby object
+    # Parse a PHP serialized string into a Ruby object.
+    #
+    # @note Hashes will be returned with symbolized keys.
     #
     # @raise [Firebug::ParseError]
-    # @return [Object]
+    # @return [Hash, Array, String, Integer, Float, nil]
     def parse # rubocop:disable AbcSize,CyclomaticComplexity
       ch = str.getch
       return if ch.nil?
