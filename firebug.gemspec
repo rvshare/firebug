@@ -28,7 +28,7 @@ Gem::Specification.new do |spec| # rubocop:disable BlockLength
   spec.add_dependency 'activerecord', '~> 5.0'
   spec.add_dependency 'ruby-mcrypt', '~> 0.2'
 
-  spec.add_development_dependency 'bundler', '~> 1.16'
+  spec.add_development_dependency 'bundler', '~> 1.15'
   spec.add_development_dependency 'database_cleaner', '~> 1.6', '>= 1.6.2'
   spec.add_development_dependency 'pry', '~> 0.11.3'
   spec.add_development_dependency 'rake', '~> 12.3'
