@@ -229,6 +229,7 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
     let(:request) { ActionDispatch::TestRequest.create }
     let(:store) { described_class.new(app) }
     let(:session_id) { store.generate_sid }
+    let(:session_options) { {} }
 
     before do
       Firebug::Session.create!(
@@ -241,19 +242,38 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
     end
 
     it 'deletes the existing session' do
-      expect { store.delete_session(request, session_id, nil) }.to(
-        change { Firebug::Session.find_by(session_id: session_id) }.from(anything).to(nil)
+      expect { store.delete_session(request, session_id, session_options) }.to(
+        change { Firebug::Session.find_by(session_id: session_id) }.from(Firebug::Session).to(nil)
       )
     end
 
     it 'creates a new session' do
-      expect { store.delete_session(request, session_id, nil) }.to(
-        change { Firebug::Session.all.count }
+      # doesn't persist the new session so count goes down
+      expect { store.delete_session(request, session_id, session_options) }.to(
+        change { Firebug::Session.all.count }.by(-1)
       )
     end
 
     it 'returns a new session ID' do
-      expect(store.delete_session(request, session_id, nil)).not_to eq(session_id)
+      expect(store.delete_session(request, session_id, session_options)).not_to eq(session_id)
+    end
+
+    context 'when configured to drop' do
+      before { session_options[:drop] = true }
+
+      it 'returns nil' do
+        expect(store.delete_session(request, session_id, session_options)).to be_nil
+      end
+    end
+
+    context 'when configured to renew' do
+      before { session_options[:renew] = true }
+
+      it 'persists a new session' do
+        expect { store.delete_session(request, session_id, session_options) }.to(
+          change { Firebug::Session.last.session_id }
+        )
+      end
     end
   end
 
@@ -261,8 +281,8 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
     let(:request) { ActionDispatch::TestRequest.create }
     let(:store) { described_class.new(app) }
 
-    it 'returns nil when cookie is not found' do
-      expect(store.extract_session_id(request)).to be_nil
+    it 'returns new session ID when cookie is not found' do
+      expect(store.extract_session_id(request)).to be_a(String)
     end
 
     it 'returns cookie if it looks like session ID' do
