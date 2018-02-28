@@ -84,13 +84,14 @@ module ActionDispatch
       #
       # @param [ActionDispatch::Request] req
       # @param [String] sid
-      # @param [Hash] _options
+      # @param [Hash] options
       # @return [String] the new session id
-      def delete_session(req, sid, _options)
+      def delete_session(req, sid, options)
         # Get the current database record for this session then delete it.
         find_session_model(req, sid).delete
+        return if options[:drop]
         # Generate a new one and return it's ID
-        find_session_model(req).session_id
+        find_session_model(req).tap { |s| s.save if options[:renew] }.session_id
       end
 
       # Tries to find the session ID in the requests cookies.
@@ -103,8 +104,8 @@ module ActionDispatch
       # @return [String, nil]
       def extract_session_id(req)
         sid = req.cookies[@key]
-        # returning `nil` just causes a new ID to be generated.
-        return if sid.nil?
+        # the request didn't have the session cookie so create a new session ID.
+        return generate_sid if sid.nil?
         # sometimes the cookie contains just the session ID.
         return sid if sid.size <= 32
         Firebug.decrypt_cookie(sid)[:session_id]
