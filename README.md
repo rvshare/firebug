@@ -1,4 +1,5 @@
 # Firebug [![CircleCI](https://circleci.com/gh/rvshare/firebug.svg?style=svg)](https://circleci.com/gh/rvshare/firebug)
+[![Gem Version](https://badge.fury.io/rb/firebug.svg)](https://badge.fury.io/rb/firebug)
 
 A gem for working with CodeIgniter sessions in ruby.
 
@@ -83,7 +84,7 @@ version, push git commits and tags, and push the `.gem`file to
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at
-[https://github.com/afrase/firebug](https://github.com/afrase/firebug.)
+[https://github.com/rvshare/firebug](https://github.com/rvshare/firebug).
 
 ## License
 
