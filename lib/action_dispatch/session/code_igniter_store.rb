@@ -7,6 +7,8 @@ module ActionDispatch
   module Session
     # A session store for Rails to handle Pyro sessions.
     class CodeIgniterStore < AbstractStore
+      SESSION_RECORD_KEY = 'rack.session.record'
+
       # @param [Object] app
       # @param [Hash] options
       # @option options [String] :key ('default_pyrocms') The session cookie name.
@@ -27,6 +29,7 @@ module ActionDispatch
       # @return [Array<String, Hash>]
       def find_session(req, sid)
         model = find_session_model(req, sid)
+        req.env[SESSION_RECORD_KEY] = model
         # +Rack::Session::Abstract::Persisted#load_session+ expects this to return an Array with the first value being
         # the session ID and the second the actual session data.
         [model.session_id, model.user_data]
@@ -72,6 +75,7 @@ module ActionDispatch
         }
         # Returning false will cause Rack to output a warning.
         return false unless model.update(model_params)
+        req.env[SESSION_RECORD_KEY] = model
         # Return the encrypted cookie format of the data. Rack sets this value as the cookie in the response
         model.cookie_data
       end
@@ -90,6 +94,7 @@ module ActionDispatch
         # Get the current database record for this session then delete it.
         find_session_model(req, sid).delete
         return if options[:drop]
+        req.env[SESSION_RECORD_KEY] = nil
         # Generate a new one and return it's ID
         find_session_model(req).tap { |s| s.save if options[:renew] }.session_id
       end
@@ -116,7 +121,7 @@ module ActionDispatch
       # @return [Firebug::Session]
       def find_session_model(req, sid=nil)
         if sid
-          model = Firebug::Session.find_by(find_by_params(req, sid))
+          model = req.env[SESSION_RECORD_KEY] || Firebug::Session.find_by(find_by_params(req, sid))
           return model if model
           # use a different session ID in case the reason for not finding the record is because the user_agent
           # or ip_address didn't match.
