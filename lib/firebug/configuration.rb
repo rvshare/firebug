@@ -13,6 +13,8 @@ module Firebug
   #   Use the user-agent in addition to the session ID.
   # @attr [Boolean] match_ip_address
   #   Use the remote ip address in addition to the session ID.
+  # @attr [Boolean] silence_logger
+  #   Silence ActiveRecord logs.
   # @attr [Proc] session_filter
   #   Return true if this request should have it's session written.
   #   @see ActionDispatch::Session::CodeIgniterStore#commit_session?
@@ -24,11 +26,13 @@ module Firebug
     attr_accessor :match_user_agent
     attr_accessor :match_ip_address
     attr_accessor :session_filter
+    attr_accessor :silence_logger
 
     def initialize
       self.truncate_user_agent = false
       self.match_user_agent = false
       self.match_ip_address = false
+      self.silence_logger = true
       # default to always writing the session
       self.session_filter = ->(_) { true }
     end

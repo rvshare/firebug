@@ -28,11 +28,13 @@ module ActionDispatch
       # @param [String] sid
       # @return [Array<String, Hash>]
       def find_session(req, sid)
-        model = find_session_model(req, sid)
-        req.env[SESSION_RECORD_KEY] = model
-        # +Rack::Session::Abstract::Persisted#load_session+ expects this to return an Array with the first value being
-        # the session ID and the second the actual session data.
-        [model.session_id, model.user_data]
+        silence_logger(req) do
+          model = find_session_model(req, sid)
+          req.env[SESSION_RECORD_KEY] = model
+          # +Rack::Session::Abstract::Persisted#load_session+ expects this to return an Array with the first value being
+          # the session ID and the second the actual session data.
+          [model.session_id, model.user_data]
+        end
       end
 
       # Should the session be persisted?
@@ -66,18 +68,20 @@ module ActionDispatch
       # @param [Hash] _options
       # @return [String] encrypted and base64 encoded string of the session data.
       def write_session(req, sid, session, _options)
-        model = find_session_model(req, sid)
-        model_params = {
-          session_id: model.session_id,
-          user_agent: req.user_agent || '', # user_agent can't be null
-          ip_address: req.remote_ip || '',  # ip_address can't be null
-          user_data: session
-        }
-        # Returning false will cause Rack to output a warning.
-        return false unless model.update(model_params)
-        req.env[SESSION_RECORD_KEY] = model
-        # Return the encrypted cookie format of the data. Rack sets this value as the cookie in the response
-        model.cookie_data
+        silence_logger(req) do
+          model = find_session_model(req, sid)
+          model_params = {
+            session_id: model.session_id,
+            user_agent: req.user_agent || '', # user_agent can't be null
+            ip_address: req.remote_ip || '',  # ip_address can't be null
+            user_data: session
+          }
+          # Returning false will cause Rack to output a warning.
+          return false unless model.update(model_params)
+          req.env[SESSION_RECORD_KEY] = model
+          # Return the encrypted cookie format of the data. Rack sets this value as the cookie in the response
+          model.cookie_data
+        end
       end
 
       # Deletes then creates a new session in the database.
@@ -91,12 +95,14 @@ module ActionDispatch
       # @param [Hash] options
       # @return [String] the new session id
       def delete_session(req, sid, options)
-        # Get the current database record for this session then delete it.
-        find_session_model(req, sid).delete
-        return if options[:drop]
-        req.env[SESSION_RECORD_KEY] = nil
-        # Generate a new one and return it's ID
-        find_session_model(req).tap { |s| s.save if options[:renew] }.session_id
+        silence_logger(req) do
+          # Get the current database record for this session then delete it.
+          find_session_model(req, sid).delete
+          return if options[:drop]
+          req.env[SESSION_RECORD_KEY] = nil
+          # Generate a new one and return it's ID
+          find_session_model(req).tap { |s| s.save if options[:renew] }.session_id
+        end
       end
 
       # Tries to find the session ID in the requests cookies.
@@ -146,6 +152,16 @@ module ActionDispatch
           params[:user_agent] = Firebug.config.truncate_user_agent ? req.user_agent&.slice(0...120) : req.user_agent
         end
         params
+      end
+
+      # @param [ActionDispatch::Request] req
+      def silence_logger(req)
+        logger = req.env['action_dispatch.logger'] || ActiveRecord::Base.logger
+        if logger && Firebug.config.silence_logger
+          logger.silence { yield }
+        else
+          yield
+        end
       end
     end
   end
