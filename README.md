@@ -63,8 +63,8 @@ Encrypt and decrypt data.
 key = 'password'
 data = 'super secret data'
 
-encrypted = Firebug.encrypt(key, data)
-decrypted = Firebug.decrypt(key, encrypted)
+encrypted = Firebug.encrypt(data, key)
+decrypted = Firebug.decrypt(encrypted, key)
 
 data == decrypted # => true
 ```
