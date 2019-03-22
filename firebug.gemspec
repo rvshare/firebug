@@ -24,8 +24,8 @@ Gem::Specification.new do |spec| # rubocop:disable BlockLength
 
   spec.metadata['yard.run'] = 'yri' # use "yard" to build full HTML docs.
 
-  spec.add_dependency 'actionpack', '~> 5.0'
-  spec.add_dependency 'activerecord', '~> 5.0'
+  spec.add_dependency 'actionpack'
+  spec.add_dependency 'activerecord'
   spec.add_dependency 'ruby-mcrypt', '~> 0.2'
 
   spec.add_development_dependency 'bundler', '~> 1.15'
