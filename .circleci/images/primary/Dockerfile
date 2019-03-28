@@ -1,3 +1,11 @@
-FROM circleci/ruby:2.4
+FROM ruby:2.6-slim
 
-RUN sudo apt-get update && sudo apt-get install mcrypt libmcrypt-dev
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    default-libmysqlclient-dev \
+    git \
+    libmcrypt-dev \
+    file \
+    sudo \
+  && rm -rf /var/lib/apt/lists/*

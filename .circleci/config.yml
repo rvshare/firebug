@@ -6,7 +6,7 @@ workspace_root: &workspace_root
 defaults: &defaults
   working_directory: *workspace_root
   docker:
-    - image: afrase/firebug-ruby:2.4
+    - image: afrase/firebug-ruby:2.6
 
 attach_workspace: &attach_workspace
   attach_workspace:
