@@ -1,17 +1,18 @@
 # frozen_string_literal: true
 
 module Firebug
-  require 'strscan'
+  require_relative 'errors'
+  require_relative 'string_io_reader'
 
   # This class will unserialize a PHP serialized string into a ruby object.
   #
-  # @attr [StringScanner] str
+  # @attr [StringIOReader] str
   class Unserializer
     attr_accessor :str
 
     # @param [String] string
     def initialize(string)
-      self.str = StringScanner.new(string)
+      self.str = StringIOReader.new(string)
     end
 
     # Convenience method for unserializing a PHP serialized string.
@@ -30,23 +31,24 @@ module Firebug
     #
     # @raise [ParserError]
     # @return [Hash, Array, String, Integer, Float, nil]
-    def parse # rubocop:disable AbcSize,CyclomaticComplexity
-      ch = str.getch
+    def parse # rubocop:disable CyclomaticComplexity
+      ch = str.getc
       return if ch.nil?
 
+      str.getc # : or ;
       case ch
       when 'a'
-        parse_enumerable.tap { expect('}') }
+        parse_enumerable
       when 's'
-        parse_string.tap { expect(';') }
+        parse_string
       when 'i'
-        parse_int.tap { expect(';') }
+        parse_int
       when 'd'
-        parse_double.tap { expect(';') }
+        parse_double
       when 'b'
-        parse_bool.tap { expect(';') }
+        parse_bool
       when 'N'
-        expect(';')
+        nil
       else
         raise ParserError, "Unknown token '#{ch}' at position #{str.pos} (#{str.string})"
       end
@@ -57,63 +59,41 @@ module Firebug
     # @raise [ParseError]
     # @return [Hash, Array]
     def parse_enumerable
-      size = parse_int
-      expect('{')
+      size = str.read_until('{')[0..-3].to_i # n:{
       return {} if size.zero?
-      if str.peek(1) == 'i'
-        # Multiply the size by 2 since the array index isn't counted in the size.
-        # Odd number element will be the index value so drop it.
-        Array.new(size * 2) { parse }.select.with_index { |_, i| i.odd? }
+
+      val = Array.new(size) { [parse, parse] }
+      str.getc # }
+      if val[0][0].is_a?(Integer)
+        val.map! { |_, v| v }
       else
-        Array.new(size) { [parse.to_sym, parse] }.to_h
+        val = Hash[val].transform_keys!(&:to_sym)
       end
+      val
     end
 
     # @return [String]
     def parse_string
-      size = parse_int
-      str.getch # consume quote '"'
-      read(size).tap { str.getch }
+      size = str.read_until(':').to_i + 3 # add 3 for the 2 double quotes and semicolon
+      String.new(str.read(size)[1..-3], encoding: Encoding::UTF_8)
     end
 
     # @raise [ParserError]
     # @return [Integer]
     def parse_int
-      str.scan(/:(\d+):?/)
-      raise ParserError, "Failed to parse integer at position #{str.pos}" unless str.matched?
-      str[1].to_i
+      str.read_until(';')[0..-1].to_i
     end
 
     # @raise [ParserError]
     # @return [Float]
     def parse_double
-      str.scan(/:(\d+(?:\.\d+)?)/)
-      raise ParserError, "Failed to parse double at position #{str.pos}" unless str.matched?
-      str[1].to_f
+      str.read_until(';')[0..-1].to_f
     end
 
     # @raise [ParserError]
     # @return [Boolean]
     def parse_bool
-      str.scan(/:([01])/)
-      raise ParserError, "Failed to parse boolean at position #{str.pos}" unless str.matched?
-      str[1] == '1'
+      str.read(2)[0] == '1'
     end
-
-    # @param [Integer] size
-    # @return [String]
-    def read(size)
-      Array.new(size) { str.get_byte }.join
-    end
-
-    # @param [String] s
-    # @raise [ParserError] if the next character is not `s`
-    def expect(s)
-      char = str.getch
-      raise ParserError, "expected '#{s}' but got '#{char}' at position #{str.pos}" unless char == s
-    end
-  end
-
-  class ParserError < StandardError
   end
 end

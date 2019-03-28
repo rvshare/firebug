@@ -4,7 +4,7 @@ require_relative '../../../spec_helper'
 
 # Convert all the private methods into public ones so it's easier to test.
 class ActionDispatch::Session::CodeIgniterStore
-  private_instance_methods(false).each { |m| public m }
+  private_instance_methods(false).each(&method(:public))
 end
 
 RSpec.describe ActionDispatch::Session::CodeIgniterStore do
