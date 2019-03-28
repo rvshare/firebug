@@ -20,7 +20,7 @@ module Firebug
       # Create a random 32 byte string to act as the initialization vector.
       iv = SecureRandom.random_bytes(32)
       # Pyro pads the data with zeros
-      cipher = Mcrypt.new(:rijndael_256, :cbc, @key, iv, :zeros)
+      cipher = FirebugMcrypt.new(:rijndael_256, :cbc, @key, iv, :zeros)
       add_noise(iv + cipher.encrypt(data))
     end
 
@@ -32,7 +32,7 @@ module Firebug
       data = remove_noise(data)
       # The first 32 bytes of the data is the original IV
       iv = data[0..31]
-      cipher = Mcrypt.new(:rijndael_256, :cbc, @key, iv, :zeros)
+      cipher = FirebugMcrypt.new(:rijndael_256, :cbc, @key, iv, :zeros)
       cipher.decrypt(data[32..-1])
     end
 
@@ -63,5 +63,15 @@ module Firebug
       key = Digest::SHA1.hexdigest(@key)
       Array.new(data.size) { |i| (data[i].ord.send(operator, key[i % key.size].ord) % 256).chr }.join
     end
+  end
+
+  # To prevent errors about @opened being uninitialized.
+  class FirebugMcrypt < ::Mcrypt
+    # rubocop:disable Naming/UncommunicativeMethodParamName
+    def initialize(algorithm, mode, key=nil, iv=nil, padding=nil)
+      @opened = nil
+      super
+    end
+    # rubocop:enable Naming/UncommunicativeMethodParamName
   end
 end
