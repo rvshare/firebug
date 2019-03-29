@@ -1,7 +1,7 @@
 require: rubocop-rspec
 
 AllCops:
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.5
 
   Exclude:
     - 'bin/*'
@@ -14,7 +14,7 @@ Style/Documentation:
   Enabled: false
 
 Metrics/AbcSize:
-  Max: 18
+  Max: 20
 
 Metrics/LineLength:
   # Commonly used screens these days easily fit more than 80 characters.
@@ -30,6 +30,9 @@ Metrics/MethodLength:
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*'
+
+Metrics/CyclomaticComplexity:
+  Max: 8
 
 Layout/SpaceAroundEqualsInParameterDefault:
   # No space makes the method definition shorter and differentiates

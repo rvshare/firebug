@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
-module ActionDispatch
-  module Session
+module ActionDispatch # :nodoc:
+  module Session # :nodoc:
     require 'action_dispatch'
     require_relative '../../firebug/session'
 
     # A session store for Rails to handle Pyro sessions.
     class CodeIgniterStore < AbstractStore
+      # The key name used to store the session model in the request env.
       SESSION_RECORD_KEY = 'rack.session.record'
 
       # @param [Object] app
