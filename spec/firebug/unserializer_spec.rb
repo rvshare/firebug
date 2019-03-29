@@ -135,5 +135,9 @@ RSpec.describe Firebug::Unserializer do
     it 'can parse a hash with mixed type values' do
       expect(described_class).to parse('a:3:{s:1:"a";s:3:"bar";s:1:"b";i:1;s:1:"c";b:0;}').as(a: 'bar', b: 1, c: false)
     end
+
+    it 'can parse nested empty hashes' do
+      expect(described_class).to parse('a:2:{s:1:"a";s:0:"";s:1:"b";a:2:{s:1:"c";a:0:{}s:1:"d";a:1:{s:1:"e";s:0:"";}}}').as(a: '', b: { c: {}, d: { e: '' } })
+    end
   end
 end

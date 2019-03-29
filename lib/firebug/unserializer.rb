@@ -31,14 +31,14 @@ module Firebug
     #
     # @raise [ParserError]
     # @return [Hash, Array, String, Integer, Float, nil]
-    def parse # rubocop:disable CyclomaticComplexity
+    def parse
       ch = str.getc
       return if ch.nil?
 
       str.getc # : or ;
       case ch
       when 'a'
-        parse_enumerable
+        parse_enumerable.tap { str.getc }
       when 's'
         parse_string
       when 'i'
@@ -63,7 +63,6 @@ module Firebug
       return {} if size.zero?
 
       val = Array.new(size) { [parse, parse] }
-      str.getc # }
       if val[0][0].is_a?(Integer)
         val.map! { |_, v| v }
       else
