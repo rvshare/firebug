@@ -8,7 +8,7 @@ require_relative 'firebug/unserializer'
 require_relative 'firebug/configuration'
 require_relative 'action_dispatch/session/code_igniter_store'
 
-module Firebug
+module Firebug # :nodoc:
   class << self
     attr_writer :configuration
 

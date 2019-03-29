@@ -65,13 +65,11 @@ module Firebug
     end
   end
 
-  # To prevent errors about @opened being uninitialized.
+  # To prevent warnings about @opened being uninitialized.
   class FirebugMcrypt < ::Mcrypt
-    # rubocop:disable Naming/UncommunicativeMethodParamName
-    def initialize(algorithm, mode, key=nil, iv=nil, padding=nil)
+    def initialize(algorithm, mode, key=nil, iv=nil, padding=nil) # rubocop:disable UncommunicativeMethodParamName
       @opened = nil
       super
     end
-    # rubocop:enable Naming/UncommunicativeMethodParamName
   end
 end

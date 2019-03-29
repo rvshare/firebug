@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Firebug
+  # Class for reading a string
   class StringIOReader < StringIO
     # Reads data from the buffer until +char+ is found.
     #
