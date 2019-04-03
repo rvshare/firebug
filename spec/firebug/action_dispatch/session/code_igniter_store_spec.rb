@@ -297,4 +297,29 @@ RSpec.describe ActionDispatch::Session::CodeIgniterStore do
       expect(store.extract_session_id(request)).to eq(session_id)
     end
   end
+
+  describe '#silence_logger' do
+    let(:logger_out) { StringIO.new }
+    let(:logger) { ActiveSupport::Logger.new(logger_out) }
+    let(:request) { ActionDispatch::TestRequest.create('action_dispatch.logger' => logger) }
+    let(:store) { described_class.new(app) }
+
+    context 'when silence_logger is true' do
+      before { Firebug.config.silence_logger = true }
+
+      it 'outputs nothing to the logger' do
+        store.silence_logger(request) { logger.info('Log message') }
+        expect(logger_out.string).to eq('')
+      end
+    end
+
+    context 'when silence_logger is false' do
+      before { Firebug.config.silence_logger = false }
+
+      it 'outputs messages to the logger' do
+        store.silence_logger(request) { logger.info('Log message') }
+        expect(logger_out.string).to eq("Log message\n")
+      end
+    end
+  end
 end

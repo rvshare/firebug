@@ -19,9 +19,9 @@ RSpec.describe Firebug::Unserializer do
     end
   end
 
-  context 'when parsing unicode strings' do
+  context 'when parsing variable-length encoded strings' do
     it 'can parse them correctly' do
-      expect(described_class).to parse('s:3:"√";').as('√')
+      expect(described_class).to parse('a:2:{i:0;s:3:"√";i:1;s:0:"";}').as(['√', ''])
     end
   end
 
