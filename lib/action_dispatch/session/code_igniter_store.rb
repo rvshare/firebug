@@ -9,6 +9,8 @@ module ActionDispatch # :nodoc:
     class CodeIgniterStore < AbstractStore
       # The key name used to store the session model in the request env.
       SESSION_RECORD_KEY = 'rack.session.record'
+      # The request env hash key that has the logger instance.
+      ACTION_DISPATCH_LOGGER_KEY = 'action_dispatch.logger'
 
       # @param [Object] app
       # @param [Hash] options
@@ -126,6 +128,8 @@ module ActionDispatch # :nodoc:
         Firebug.decrypt_cookie(sid)[:session_id]
       end
 
+      # Attempts to find an existing session record or returns a new one.
+      #
       # @param [ActionDispatch::Request] req
       # @param [String] sid
       # @return [Firebug::Session]
@@ -147,6 +151,8 @@ module ActionDispatch # :nodoc:
         )
       end
 
+      # The parameters used to find a session in the database.
+      #
       # @param [ActionDispatch::Request] req
       # @param [String] sid
       # @return [Hash]
@@ -159,10 +165,12 @@ module ActionDispatch # :nodoc:
         params
       end
 
+      # If silence logger is enabled, disable logger output for the block.
+      #
       # @param [ActionDispatch::Request] req
       def silence_logger(req)
-        logger = req.env['action_dispatch.logger'] || ActiveRecord::Base.logger
-        if logger && Firebug.config.silence_logger
+        logger = req.env[ACTION_DISPATCH_LOGGER_KEY] || ActiveRecord::Base.logger
+        if logger.respond_to?(:silence) && Firebug.config.silence_logger
           logger.silence { yield }
         else
           yield

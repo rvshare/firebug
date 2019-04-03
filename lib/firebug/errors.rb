@@ -2,7 +2,7 @@
 
 module Firebug
   # Base error class.
-  FirebugError = Class.new(StandardError)
+  Error = Class.new(StandardError)
   # An error unserializing a string.
-  ParserError = Class.new(FirebugError)
+  ParserError = Class.new(Error)
 end
