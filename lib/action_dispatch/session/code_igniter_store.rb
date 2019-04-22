@@ -158,8 +158,8 @@ module ActionDispatch # :nodoc:
       # @return [Hash]
       def find_by_params(req, sid)
         params = { session_id: sid }
-        params[:ip_address] = req.remote_ip if Firebug.config.match_ip_address
-        if Firebug.config.match_user_agent
+        params[:ip_address] = req.remote_ip if Firebug.config.match_ip_address.call(req)
+        if Firebug.config.match_user_agent.call(req)
           params[:user_agent] = Firebug.config.truncate_user_agent ? req.user_agent&.slice(0...120) : req.user_agent
         end
         params

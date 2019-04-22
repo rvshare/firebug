@@ -9,9 +9,9 @@ module Firebug
   #   The name of the sessions table.
   # @attr [Boolean] truncate_user_agent
   #   Truncate the user-agent to 120 characters.
-  # @attr [Boolean] match_user_agent
+  # @attr [Proc] match_user_agent
   #   Use the user-agent in addition to the session ID.
-  # @attr [Boolean] match_ip_address
+  # @attr [Proc] match_ip_address
   #   Use the remote ip address in addition to the session ID.
   # @attr [Boolean] silence_logger
   #   Silence ActiveRecord logs.
@@ -20,11 +20,11 @@ module Firebug
   #   @see ActionDispatch::Session::CodeIgniterStore#commit_session?
   class Configuration
     attr_reader :table_name
+    attr_reader :match_user_agent
+    attr_reader :match_ip_address
 
     attr_accessor :key
     attr_accessor :truncate_user_agent
-    attr_accessor :match_user_agent
-    attr_accessor :match_ip_address
     attr_accessor :session_filter
     attr_accessor :silence_logger
 
@@ -35,6 +35,16 @@ module Firebug
       self.silence_logger = true
       # default to always writing the session
       self.session_filter = ->(_) { true }
+    end
+
+    # @param [Proc,Boolean] value
+    def match_user_agent=(value)
+      @match_user_agent = value.respond_to?(:call) ? value : ->(_) { value }
+    end
+
+    # @param [Proc,Boolean] value
+    def match_ip_address=(value)
+      @match_ip_address = value.respond_to?(:call) ? value : ->(_) { value }
     end
 
     # Sets the table name for (see Firebug::Session)
