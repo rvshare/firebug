@@ -36,7 +36,7 @@ Gem::Specification.new do |spec| # rubocop:disable BlockLength
   spec.add_development_dependency 'rspec_junit_formatter', '~> 0.4.1'
   spec.add_development_dependency 'rubocop', '~> 0.66.0'
   spec.add_development_dependency 'rubocop-rspec', '~> 1.32'
-  spec.add_development_dependency 'simplecov', '~> 0.16.1'
+  spec.add_development_dependency 'simplecov', '~> 0.17.0'
   spec.add_development_dependency 'sqlite3', '~> 1.3.6'
   spec.add_development_dependency 'yard', '~> 0.9.18'
 end
