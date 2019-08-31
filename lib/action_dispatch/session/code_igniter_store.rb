@@ -3,7 +3,7 @@
 module ActionDispatch # :nodoc:
   module Session # :nodoc:
     require 'action_dispatch'
-    require_relative '../../firebug/session'
+    require 'firebug/session'
 
     # A session store for Rails to handle Pyro sessions.
     class CodeIgniterStore < AbstractStore
@@ -69,7 +69,8 @@ module ActionDispatch # :nodoc:
       # @param [String] sid
       # @param [Hash] session
       # @param [Hash] _options
-      # @return [String] encrypted and base64 encoded string of the session data.
+      # @return [String, FalseClass] encrypted and base64 encoded string of the session data or +false+ if the
+      #   session could not be saved.
       def write_session(req, sid, session, _options)
         silence_logger(req) do
           model = find_session_model(req, sid)
@@ -97,7 +98,7 @@ module ActionDispatch # :nodoc:
       # @param [ActionDispatch::Request] req
       # @param [String] sid
       # @param [Hash] options
-      # @return [String] the new session id
+      # @return [String, nil] the new session id or +nil+ if +options[:drop]+.
       def delete_session(req, sid, options)
         silence_logger(req) do
           # Get the current database record for this session then delete it.
