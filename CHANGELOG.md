@@ -1,3 +1,12 @@
+# 1.4.0
+
+* Updated to work with Rails 6.
+
+# 1.3.0
+
+* Allow `Firebug::Configuration#match_user_agent` and
+  `Firebug::Configuration#match_ip_address` to be a `Proc`.
+
 # 1.2.2
 
 * Fix for reading multibyte characters.
