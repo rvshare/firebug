@@ -28,8 +28,8 @@ module ActionDispatch # :nodoc:
       # @see http://api.rubyonrails.org/classes/ActionDispatch/Request.html ActionDispatch::Request
       #
       # @param [ActionDispatch::Request] req
-      # @param [String] sid
-      # @return [Array<String, Hash>]
+      # @param [String, Rack::Session::SessionId] sid
+      # @return [Array<String, Hash, Array>]
       def find_session(req, sid)
         silence_logger(req) do
           model = find_session_model(req, sid)
@@ -132,14 +132,14 @@ module ActionDispatch # :nodoc:
       # Attempts to find an existing session record or returns a new one.
       #
       # @param [ActionDispatch::Request] req
-      # @param [String] sid
+      # @param [String, Rack::Session::SessionId] sid
       # @return [Firebug::Session]
       def find_session_model(req, sid=nil)
         if sid
           model = req.env[SESSION_RECORD_KEY] || Firebug::Session.find_by(find_by_params(req, sid))
           return model if model
 
-          # use a different session ID in case the reason for not finding the record is because the user_agent
+          # use a different session ID in case the reason for not finding the record is that the user_agent
           # or ip_address didn't match.
           sid = generate_sid
         end
@@ -155,10 +155,12 @@ module ActionDispatch # :nodoc:
       # The parameters used to find a session in the database.
       #
       # @param [ActionDispatch::Request] req
-      # @param [String] sid
+      # @param [String, Rack::Session::SessionId] sid
       # @return [Hash]
       def find_by_params(req, sid)
-        params = { session_id: sid }
+        # the +sid+ can sometimes be a +Rack::Session::SessionId+ if a +ActionDispatch::Session::AbstractSecureStore+
+        # is used, so if it's not a string then get the +public_id+.
+        params = { session_id: sid.is_a?(String) ? sid : sid.public_id }
         params[:ip_address] = req.remote_ip if Firebug.config.match_ip_address.call(req)
         if Firebug.config.match_user_agent.call(req)
           params[:user_agent] = Firebug.config.truncate_user_agent ? req.user_agent&.slice(0...120) : req.user_agent
