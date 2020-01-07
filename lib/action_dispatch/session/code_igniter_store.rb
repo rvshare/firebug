@@ -9,7 +9,7 @@ module ActionDispatch # :nodoc:
     class CodeIgniterStore < AbstractStore
       # The key name used to store the session model in the request env.
       SESSION_RECORD_KEY = 'rack.session.record'
-      # The request env hash key that has the logger instance.
+      # The request env hash key has the logger instance.
       ACTION_DISPATCH_LOGGER_KEY = 'action_dispatch.logger'
 
       # @param [Object] app
@@ -84,7 +84,7 @@ module ActionDispatch # :nodoc:
           return false unless model.update(model_params)
 
           req.env[SESSION_RECORD_KEY] = model
-          # Return the encrypted cookie format of the data. Rack sets this value as the cookie in the response
+          # Return the encrypted cookie format of the data. Rack sets this value as the cookie in the response.
           model.cookie_data
         end
       end
@@ -106,7 +106,7 @@ module ActionDispatch # :nodoc:
           return if options[:drop]
 
           req.env[SESSION_RECORD_KEY] = nil
-          # Generate a new one and return it's ID
+          # Generate a new one and return its ID
           find_session_model(req).tap { |s| s.save if options[:renew] }.session_id
         end
       end

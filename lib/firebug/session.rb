@@ -7,13 +7,14 @@ module Firebug
   class Session < ActiveRecord::Base
     self.table_name = 'default_ci_sessions'
 
-    # @return [Object]
+    # @return [Hash, Array]
     def user_data
       Firebug.unserialize(super || '')
     end
 
-    # @param [Object] value
+    # @param [Hash] value
     def user_data=(value)
+      value.transform_values! { |v| v.respond_to?(:public_id) ? v.public_id : v }
       super(Firebug.serialize(value))
     end
 

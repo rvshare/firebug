@@ -1,3 +1,11 @@
+# 1.4.2
+
+* Use the `Rack::Session::SessionId#public_id` for the session_id before updating the user_data.
+
+# 1.4.1
+
+* Fix for the update to rack session IDs.
+
 # 1.4.0
 
 * Updated to work with Rails 6.
