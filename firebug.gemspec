@@ -30,7 +30,7 @@ Gem::Specification.new do |spec| # rubocop:disable BlockLength
 
   spec.add_development_dependency 'bundler', '~> 2.0', '>= 2.0.1'
   spec.add_development_dependency 'database_cleaner', '~> 1.7'
-  spec.add_development_dependency 'pry', '~> 0.12.2'
+  spec.add_development_dependency 'pry', '~> 0.13.0'
   spec.add_development_dependency 'rake', '~> 12.3', '>= 12.3.2'
   spec.add_development_dependency 'rspec', '~> 3.8'
   spec.add_development_dependency 'rspec_junit_formatter', '~> 0.4.1'
